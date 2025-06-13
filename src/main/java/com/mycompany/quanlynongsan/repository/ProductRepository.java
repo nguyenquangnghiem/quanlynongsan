@@ -25,7 +25,7 @@ public class ProductRepository {
 
     final private String FIND_ALL = "SELECT * FROM PRODUCT p WHERE p.is_sell = 1 AND p.is_browse = 1 AND p.is_active = 1";
     
-    final private String FIND_BY_ID = "SELECT * FROM PRODUCT p WHERE p.product_id = ? AND p.is_sell = 1 AND p.is_browse = 1 AND p.is_active = 1";
+    final private String FIND_BY_ID = "SELECT * FROM PRODUCT p WHERE p.product_id = ? AND p.is_sell = 1 AND p.is_active = 1";
     public ProductRepository() {
     }
     

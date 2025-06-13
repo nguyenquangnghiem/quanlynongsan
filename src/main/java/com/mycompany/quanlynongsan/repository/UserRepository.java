@@ -60,31 +60,44 @@ public class UserRepository {
 }
     
     public boolean save(User user) {
-        try(Connection conn = DatabaseConnection.getConnection()){
-            if(user.getUserId() == null){
-                PreparedStatement stmtCreate = conn.prepareStatement(CREATE_USER);
-                stmtCreate.setString(1, user.getEmail());
-                stmtCreate.setString(2, user.getPassword());
-                stmtCreate.setInt(3, user.getRoleId());
-                stmtCreate.setBoolean(4, true);
-                stmtCreate.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
-                stmtCreate.executeUpdate();
-                return true;
-            } else {
-                PreparedStatement stmtUpdate = conn.prepareStatement(UPDATE_USER);
-                stmtUpdate.setString(1, user.getFullName());
-                stmtUpdate.setString(2, user.getAddress());
-                stmtUpdate.setString(3, user.getPhoneNumber());
-                stmtUpdate.setInt(4, user.getUserId());
-                stmtUpdate.executeUpdate();
-                return true;
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return false;
-    }
+    final String CREATE_USER = "INSERT INTO [USER](email, password, role_id, is_active, created_date) VALUES (?,?,?,?,?)";
+    final String UPDATE_USER = "UPDATE [USER] SET full_name = ?, address = ?, phone_number = ? WHERE user_id = ?";
+    final String UPDATE_PASSWORD = "UPDATE [USER] SET password = ? WHERE user_id = ?";
     
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        if (user.getUserId() == null) {
+            // Thêm mới
+            PreparedStatement stmtCreate = conn.prepareStatement(CREATE_USER);
+            stmtCreate.setString(1, user.getEmail());
+            stmtCreate.setString(2, user.getPassword());
+            stmtCreate.setInt(3, user.getRoleId());
+            stmtCreate.setBoolean(4, true);
+            stmtCreate.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            stmtCreate.executeUpdate();
+            return true;
+        } else {
+            // Cập nhật thông tin cá nhân
+            PreparedStatement stmtUpdate = conn.prepareStatement(UPDATE_USER);
+            stmtUpdate.setString(1, user.getFullName());
+            stmtUpdate.setString(2, user.getAddress());
+            stmtUpdate.setString(3, user.getPhoneNumber());
+            stmtUpdate.setInt(4, user.getUserId());
+            stmtUpdate.executeUpdate();
+            
+            // Nếu có mật khẩu mới, cập nhật thêm mật khẩu
+            if (user.getPassword() != null && !user.getPassword().isBlank()) {
+                PreparedStatement stmtUpdatePassword = conn.prepareStatement(UPDATE_PASSWORD);
+                stmtUpdatePassword.setString(1, user.getPassword());
+                stmtUpdatePassword.setInt(2, user.getUserId());
+                stmtUpdatePassword.executeUpdate();
+            }
+            return true;
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+    return false;
+}
     public User findByEmail(String email) {
         try (Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(FIND_BY_EMAIL)) {

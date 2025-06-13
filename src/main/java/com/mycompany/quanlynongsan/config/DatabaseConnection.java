@@ -8,6 +8,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ *
+ * @author nghiem
+ */
 public class DatabaseConnection {
     private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=quanlynongsan;encrypt=true;trustServerCertificate=true";
     private static final String USERNAME = "sa";           // Hoặc user khác

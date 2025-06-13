@@ -16,7 +16,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-
+/**
+ *
+ * @author nghiem
+ */
 
 @WebServlet(urlPatterns = {"/user/category"})
 public class Category extends HttpServlet {

@@ -4,7 +4,10 @@
  */
 package com.mycompany.quanlynongsan.config;
 
-
+/**
+ *
+ * @author nghiem
+ */
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
