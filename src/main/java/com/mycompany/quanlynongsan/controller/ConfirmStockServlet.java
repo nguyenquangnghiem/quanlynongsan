@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 import com.mycompany.quanlynongsan.model.Behavior;
 import com.mycompany.quanlynongsan.model.User;
@@ -18,27 +15,33 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- *
- * @author nghiem
- */
-
 @WebServlet(urlPatterns = "/confirm-stock")
 public class ConfirmStockServlet extends HttpServlet {
 
-    private OrderRepository orderRepository = new OrderRepository();
-
-    private BehaviorRepository behaviorRepository = new BehaviorRepository();
+    private final OrderRepository orderRepository = new OrderRepository();
+    private final BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer orderId = Integer.valueOf(req.getParameter("orderId"));
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
-        orderRepository.importProductsForUser(orderId, user.getUserId());
-        Behavior behavior = behaviorRepository.findByCode("IMPORT_PRODUCT");
-        behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-        req.getRequestDispatcher("/secured/user/orders-not-imported").forward(req, resp);
-    }
 
+        String redirectURL = req.getContextPath() + "/secured/user/orders-not-imported";
+
+        try {
+            orderRepository.importProductsForUser(orderId, user.getUserId());
+
+            Behavior behavior = behaviorRepository.findByCode("IMPORT_PRODUCT");
+            behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
+
+            String successMsg = URLEncoder.encode("Xác nhận nhập kho thành công!", "UTF-8");
+            resp.sendRedirect(redirectURL + "?success=" + successMsg);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMsg = URLEncoder.encode("❌ Đã xảy ra lỗi khi xác nhận nhập kho!", "UTF-8");
+            resp.sendRedirect(redirectURL + "?error=" + errorMsg);
+        }
+    }
 }

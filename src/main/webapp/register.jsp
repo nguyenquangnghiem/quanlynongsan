@@ -129,12 +129,5 @@
         if (breadcrumb) {
             breadcrumb.innerHTML = '<div><span class="material-symbols-outlined">home</span> &bull; Đăng ký</div>';
         }
-
-        var params = new URLSearchParams(window.location.search);
-        var error = params.get("error");
-
-        if (error === "500") {
-            alert("Tên tài khoản đã tồn tại hoặc đã bị vô hiệu hóa!");
-        }
     });
 </script>

@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import com.mycompany.quanlynongsan.model.Behavior;
@@ -20,28 +17,34 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- *
- * @author nghiem
- */
 @WebServlet(urlPatterns = "/secured/user/delete-product")
 public class DeleteProductServlet extends HttpServlet {
 
-    private ProductRepository productRepository = new ProductRepository();
-
-    private BehaviorRepository behaviorRepository = new BehaviorRepository();
+    private final ProductRepository productRepository = new ProductRepository();
+    private final BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer idProduct = Integer.valueOf(req.getParameter("id"));
-        productRepository.deleteProduct(idProduct);
-        HttpSession session = req.getSession();
-        User user = (User) session.getAttribute("user");
-        Behavior behavior = behaviorRepository.findByCode("DELETE_PRODUCT");
-        behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-        List<Product> products = productRepository.findByHolderId(user.getUserId());
-        req.setAttribute("products", products);
-        req.getRequestDispatcher("/user/my-product.jsp").forward(req, resp);
-    }
+        String redirectURL = req.getContextPath() + "/secured/user/my-products";
 
+        try {
+            Integer idProduct = Integer.valueOf(req.getParameter("id"));
+
+            HttpSession session = req.getSession();
+            User user = (User) session.getAttribute("user");
+
+            productRepository.deleteProduct(idProduct);
+
+            Behavior behavior = behaviorRepository.findByCode("DELETE_PRODUCT");
+            behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
+
+            String successMsg = URLEncoder.encode("Xóa sản phẩm thành công!", "UTF-8");
+            resp.sendRedirect(redirectURL + "?success=" + successMsg);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMsg = URLEncoder.encode("❌ Xóa sản phẩm thất bại!", "UTF-8");
+            resp.sendRedirect(redirectURL + "?error=" + errorMsg);
+        }
+    }
 }

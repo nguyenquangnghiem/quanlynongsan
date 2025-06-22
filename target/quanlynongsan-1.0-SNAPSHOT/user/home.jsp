@@ -3,7 +3,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <jsp:include page="/header.jsp" />
 
-
 <style>
     .container-fluid{
         padding-left: 300px;
@@ -507,6 +506,7 @@
          // ⚙️ ===> GÁN href cho nút Xem chi tiết
         const contextPath = window.location.origin + "${pageContext.request.contextPath}";
         $('#productDetailPageLink').attr('href', contextPath + '/product-detail?productId=' + product.productId);
+        $('#reportProductLink').attr('href', contextPath + '/user/report-product-page.jsp?productId=' + product.productId);
 
         $('#productDetailModal').modal('show');
     }

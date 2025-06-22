@@ -50,7 +50,8 @@ public class CODServlet extends HttpServlet {
         User user = (User) session.getAttribute("user");
 
         if (user == null) {
-            response.getWriter().println("Bạn chưa đăng nhập!");
+            String msg = java.net.URLEncoder.encode("Bạn chưa đăng nhập!", "UTF-8");
+            response.sendRedirect(request.getContextPath() + "/login?error=" + msg);
             return;
         }
 
@@ -89,11 +90,14 @@ public class CODServlet extends HttpServlet {
             Behavior behavior = behaviorRepository.findByCode("PLACE_ORDER");
             behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
 
-            request.getRequestDispatcher("/user/home.jsp").forward(request, response);
+            String successMsg = java.net.URLEncoder.encode("Đặt hàng thành công!", "UTF-8");
+            response.sendRedirect(request.getContextPath() + "/user/home?success=" + successMsg);
+
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            response.getWriter().println("❌ Đã xảy ra lỗi khi xử lý đơn hàng.");
+            String errorMsg = java.net.URLEncoder.encode("❌ Đã xảy ra lỗi khi xử lý đơn hàng.", "UTF-8");
+            response.sendRedirect(request.getContextPath() + "/user/home?error=" + errorMsg);
         }
     }
 }

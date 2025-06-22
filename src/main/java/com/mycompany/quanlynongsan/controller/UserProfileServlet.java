@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -20,17 +17,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- *
- * @author nghiem
- */
-
 @WebServlet(urlPatterns = "/secured/user/profile")
 public class UserProfileServlet extends HttpServlet {
 
-    private UserRepository userRepository = new UserRepository();
-
-    private BehaviorRepository behaviorRepository = new BehaviorRepository();
+    private final UserRepository userRepository = new UserRepository();
+    private final BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -43,7 +34,7 @@ public class UserProfileServlet extends HttpServlet {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
 
-        String message = null;
+        String success = null;
         String error = null;
 
         try {
@@ -57,7 +48,7 @@ public class UserProfileServlet extends HttpServlet {
                 userRepository.save(user);
                 Behavior behavior = behaviorRepository.findByCode("UPDATE_PROFILE");
                 behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-                message = "Cập nhật thông tin thành công!";
+                success = "Cập nhật thông tin thành công!";
             } else if (action.equals("updateAddress")) {
                 String address = req.getParameter("address");
                 String ward = req.getParameter("ward");
@@ -67,7 +58,7 @@ public class UserProfileServlet extends HttpServlet {
                 userRepository.save(user);
                 Behavior behavior = behaviorRepository.findByCode("UPDATE_PROFILE");
                 behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-                message = "Cập nhật địa chỉ thành công!";
+                success = "Cập nhật địa chỉ thành công!";
             } else if (action.equals("updatePassword")) {
                 String nowPass = req.getParameter("nowPass");
                 String newPass = req.getParameter("newPass");
@@ -78,7 +69,7 @@ public class UserProfileServlet extends HttpServlet {
                         userRepository.save(user);
                         Behavior behavior = behaviorRepository.findByCode("RESET_PASSWORD");
                         behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-                        message = "Thay đổi mật khẩu thành công!";
+                        success = "Thay đổi mật khẩu thành công!";
                     } else {
                         error = "Mật khẩu xác nhận không khớp!";
                     }
@@ -89,12 +80,14 @@ public class UserProfileServlet extends HttpServlet {
             session.setAttribute("user", user);
 
         } catch (Exception e) {
+            e.printStackTrace();
             error = "Đã xảy ra lỗi trong quá trình cập nhật!";
         }
 
-        req.setAttribute("message", message);
-        req.setAttribute("error", error);
-        req.getRequestDispatcher("/user/user-profile.jsp").forward(req, resp);
+        if (success != null) {
+            resp.sendRedirect(req.getContextPath() + "/secured/user/profile?success=" + URLEncoder.encode(success, "UTF-8"));
+        } else {
+            resp.sendRedirect(req.getContextPath() + "/secured/user/profile?error=" + URLEncoder.encode(error, "UTF-8"));
+        }
     }
-
 }

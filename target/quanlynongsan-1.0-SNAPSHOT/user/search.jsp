@@ -343,7 +343,7 @@
          // ⚙️ ===> GÁN href cho nút Xem chi tiết
         const contextPath = window.location.origin + "${pageContext.request.contextPath}";
         $('#productDetailPageLink').attr('href', contextPath + '/product-detail?productId=' + product.productId);
-
+        $('#reportProductLink').attr('href', contextPath + '/user/report-product-page.jsp?productId=' + product.productId);
         $('#productDetailModal').modal('show');
     }
 

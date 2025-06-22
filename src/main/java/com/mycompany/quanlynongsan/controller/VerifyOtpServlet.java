@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.IOException;
@@ -15,10 +11,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author nghiem
- */
 @WebServlet("/verify-otp")
 public class VerifyOtpServlet extends HttpServlet {
 
@@ -34,15 +26,17 @@ public class VerifyOtpServlet extends HttpServlet {
             boolean isValid = otpRepo.verifyOtp(email, otp);
 
             if (isValid) {
-                response.sendRedirect(request.getContextPath() + "/reset-password.jsp?email=" + email);
+                String message = "Xác thực OTP thành công. Vui lòng đặt lại mật khẩu mới.";
+                response.sendRedirect(request.getContextPath() + "/reset-password.jsp?email=" + email + "&success="
+                        + URLEncoder.encode(message, "UTF-8"));
             } else {
-                String message = "Mã OTP không hợp lệ";
+                String message = "Mã OTP không chính xác hoặc đã hết hạn.";
                 response.sendRedirect(request.getContextPath() + "/verify-otp.jsp?email=" + email + "&error="
                         + URLEncoder.encode(message, "UTF-8"));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            String message = "Lỗi xác thực OTP";
+            String message = "Đã xảy ra lỗi trong quá trình xác thực OTP.";
             response.sendRedirect(request.getContextPath() + "/verify-otp.jsp?email=" + email + "&error="
                     + URLEncoder.encode(message, "UTF-8"));
         }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.File;
@@ -10,11 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.net.URLEncoder;
+import java.util.*;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -31,41 +24,29 @@ import com.mycompany.quanlynongsan.repository.ProductRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
+import jakarta.servlet.http.*;
 
-/**
- *
- * @author nghiem
- */
 @MultipartConfig
 @WebServlet(urlPatterns = "/secured/user/edit-product")
 public class EditProductServlet extends HttpServlet {
 
-    private ProductRepository productRepository = new ProductRepository();
-
-    private CategoryRepository categoryRepository = new CategoryRepository();
-
-    private ImageProductRepository imageProductRepository = new ImageProductRepository();
-
-    private BehaviorRepository behaviorRepository = new BehaviorRepository();
+    private final ProductRepository productRepository = new ProductRepository();
+    private final CategoryRepository categoryRepository = new CategoryRepository();
+    private final ImageProductRepository imageProductRepository = new ImageProductRepository();
+    private final BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int productId = Integer.parseInt(req.getParameter("id"));
-        Product product = productRepository.findByIdNonIsBrowseNonIsSell(productId); // lấy sản phẩm
-        List<com.mycompany.quanlynongsan.model.Category> allCategories = categoryRepository.findAll(); // lấy toàn bộ
-                                                                                                       // danh mục
-        List<com.mycompany.quanlynongsan.model.Category> selectedCategoryIds = categoryRepository
-                .findCategoriesByProductId(productId); // lấy danh mục đã chọn
+        Product product = productRepository.findByIdNonIsBrowseNonIsSell(productId);
+        List<com.mycompany.quanlynongsan.model.Category> allCategories = categoryRepository.findAll();
+        List<com.mycompany.quanlynongsan.model.Category> selectedCategoryIds = categoryRepository.findCategoriesByProductId(productId);
         List<ImageProduct> imageProducts = imageProductRepository.findByProductId(productId);
 
         req.setAttribute("product", product);
         req.setAttribute("allCategories", allCategories);
         req.setAttribute("selectedCategoryIds", selectedCategoryIds);
+
         List<String> imageUrls = new ArrayList<>();
         for (ImageProduct imageProduct : imageProducts) {
             imageUrls.add(imageProduct.getUrlImage());
@@ -81,8 +62,13 @@ public class EditProductServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("text/html;charset=UTF-8");
 
+        String redirectURL = req.getContextPath() + "/secured/user/my-products";
+        if (user.getRoleId() == 2) {
+            redirectURL = req.getContextPath() + "/secured/user/my-stock";
+        }
+
         try {
-            // 1. Lấy thông tin sản phẩm từ request
+            // Lấy thông tin sản phẩm từ request
             String name = req.getParameter("name");
             String description = req.getParameter("description");
             BigDecimal price = new BigDecimal(req.getParameter("price"));
@@ -93,22 +79,22 @@ public class EditProductServlet extends HttpServlet {
             String placeOfManufacture = req.getParameter("place_of_manufacture");
             String[] categoryIdsParam = req.getParameterValues("category_ids");
             Integer productId = Integer.valueOf(req.getParameter("product_id"));
-            Integer[] categories = null;
+            Boolean isActive = Boolean.parseBoolean(req.getParameter("is_active"));
+            Integer holderId = user.getUserId();
+            Date createdDate = new Date();
 
+            Integer[] categories = null;
             if (categoryIdsParam != null) {
                 categories = new Integer[categoryIdsParam.length];
                 for (int i = 0; i < categoryIdsParam.length; i++) {
                     categories[i] = Integer.parseInt(categoryIdsParam[i]);
                 }
             }
-            Boolean isActive = Boolean.parseBoolean(req.getParameter("is_active"));
-            Integer holderId = user.getUserId();
-            Date createdDate = new Date();
 
             Product product = new Product(productId, name, description, price, quantity, status, isSell, isBrowse,
                     placeOfManufacture, isActive, holderId, createdDate);
 
-            // 2. Xử lý upload ảnh
+            // Upload ảnh
             Collection<Part> fileParts = req.getParts();
             List<String> imageUrls = new ArrayList<>();
             Cloudinary cloudinary = CloudinaryConfig.getInstance();
@@ -116,10 +102,9 @@ public class EditProductServlet extends HttpServlet {
             for (Part filePart : fileParts) {
                 String fileName = filePart.getSubmittedFileName();
                 if (fileName != null && !fileName.isEmpty()) {
-                    // Tạo file tạm
                     File tempFile = File.createTempFile("upload-", fileName);
                     try (InputStream fileContent = filePart.getInputStream();
-                            OutputStream out = new FileOutputStream(tempFile)) {
+                         OutputStream out = new FileOutputStream(tempFile)) {
                         byte[] buffer = new byte[1024];
                         int bytesRead;
                         while ((bytesRead = fileContent.read(buffer)) != -1) {
@@ -127,43 +112,31 @@ public class EditProductServlet extends HttpServlet {
                         }
                     }
 
-                    // Upload lên Cloudinary
                     try {
                         Map uploadResult = cloudinary.uploader().upload(tempFile, ObjectUtils.emptyMap());
                         String publicUrl = (String) uploadResult.get("url");
                         imageUrls.add(publicUrl);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        req.setAttribute("error", "Upload failed: " + e.getMessage());
-                        req.getRequestDispatcher("/error.jsp").forward(req, resp);
-                        return;
                     } finally {
-                        tempFile.delete(); // Xóa file tạm
+                        tempFile.delete();
                     }
                 }
             }
 
-            // 3. Lưu vào database
-            ProductRepository repo = new ProductRepository();
-            boolean success = repo.update(product, imageUrls, categories);
-            String backUrl = req.getContextPath() + "/secured/user/my-products";
-            if (user.getRoleId() == 2) {
-                backUrl = req.getContextPath() + "/secured/user/my-stock";
-            }
-
+            boolean success = productRepository.update(product, imageUrls, categories);
             if (success) {
                 Behavior behavior = behaviorRepository.findByCode("EDIT_PRODUCT");
                 behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-                resp.sendRedirect(backUrl); // Ví dụ chuyển hướng về trang danh sách sản phẩm
+                String successMsg = URLEncoder.encode("Cập nhật sản phẩm thành công!", "UTF-8");
+                resp.sendRedirect(redirectURL + "?success=" + successMsg);
             } else {
-                req.setAttribute("error", "Failed to create product.");
-                req.getRequestDispatcher("/error.jsp").forward(req, resp);
+                String errorMsg = URLEncoder.encode("❌ Cập nhật sản phẩm thất bại!", "UTF-8");
+                resp.sendRedirect(redirectURL + "?error=" + errorMsg);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            req.setAttribute("error", "Server error: " + e.getMessage());
-            req.getRequestDispatcher("/error.jsp").forward(req, resp);
+            String errorMsg = URLEncoder.encode("❌ Lỗi server: " + e.getMessage(), "UTF-8");
+            resp.sendRedirect(redirectURL + "?error=" + errorMsg);
         }
     }
-
 }

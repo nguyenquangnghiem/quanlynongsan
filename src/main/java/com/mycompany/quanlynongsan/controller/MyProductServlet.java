@@ -32,6 +32,18 @@ public class MyProductServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
+         String success = req.getParameter("success");
+    String error = req.getParameter("error");
+
+    if (success != null) {
+        success = java.net.URLDecoder.decode(success, "UTF-8");
+        req.setAttribute("success", success);
+    }
+    
+    if (error != null) {
+        error = java.net.URLDecoder.decode(error, "UTF-8");
+        req.setAttribute("error", error);
+    }
         List<Product> products = productRepository.findByHolderId(user.getUserId());
         req.setAttribute("products", products);
         req.getRequestDispatcher("/user/my-product.jsp").forward(req, resp);

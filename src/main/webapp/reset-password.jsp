@@ -93,12 +93,5 @@
         if (breadcrumb) {
             breadcrumb.innerHTML = '<div><span class="material-symbols-outlined">home</span> &bull; Đặt lại mật khẩu</div>';
         }
-
-        var params = new URLSearchParams(window.location.search);
-        var success = params.get("success");
-        var error = params.get("error");
-
-        if (success) alert(success);
-        if (error) alert(error);
     });
 </script>

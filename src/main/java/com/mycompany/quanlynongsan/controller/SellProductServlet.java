@@ -33,6 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
+import java.net.URLEncoder;
 
 /**
  *
@@ -92,10 +93,8 @@ public class SellProductServlet extends HttpServlet {
                 for (Part filePart : fileParts) {
                     String fileName = filePart.getSubmittedFileName();
                     if (fileName != null && !fileName.isEmpty()) {
-                        // Tạo file tạm
                         File tempFile = File.createTempFile("upload-", fileName);
-                        try (InputStream fileContent = filePart.getInputStream();
-                                OutputStream out = new FileOutputStream(tempFile)) {
+                        try (InputStream fileContent = filePart.getInputStream(); OutputStream out = new FileOutputStream(tempFile)) {
                             byte[] buffer = new byte[1024];
                             int bytesRead;
                             while ((bytesRead = fileContent.read(buffer)) != -1) {
@@ -103,18 +102,17 @@ public class SellProductServlet extends HttpServlet {
                             }
                         }
 
-                        // Upload lên Cloudinary
                         try {
                             Map uploadResult = cloudinary.uploader().upload(tempFile, ObjectUtils.emptyMap());
                             String publicUrl = (String) uploadResult.get("url");
                             imageUrls.add(publicUrl);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            req.setAttribute("error", "Upload failed: " + e.getMessage());
-                            req.getRequestDispatcher("/error.jsp").forward(req, resp);
+                            String errorMessage = "Upload thất bại: " + e.getMessage();
+                            resp.sendRedirect(req.getContextPath() + "/secured/user/sell-product?error=" + URLEncoder.encode(errorMessage, "UTF-8"));
                             return;
                         } finally {
-                            tempFile.delete(); // Xóa file tạm
+                            tempFile.delete();
                         }
                     }
                 }
@@ -126,16 +124,14 @@ public class SellProductServlet extends HttpServlet {
                 if (success) {
                     Behavior behavior = behaviorRepository.findByCode("CREATE_PRODUCT");
                     behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-                    resp.sendRedirect(req.getContextPath() + "/secured/user/my-products"); // Ví dụ chuyển hướng về
-                                                                                           // trang danh sách sản phẩm
+                    resp.sendRedirect(req.getContextPath() + "/secured/user/my-products?success=" + URLEncoder.encode("Thêm sản phẩm mới thành công!", "UTF-8"));
                 } else {
-                    req.setAttribute("error", "Failed to create product.");
-                    req.getRequestDispatcher("/error.jsp").forward(req, resp);
+                    resp.sendRedirect(req.getContextPath() + "/secured/user/sell-product?error=" + URLEncoder.encode("Thêm sản phẩm thất bại.", "UTF-8"));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                req.setAttribute("error", "Server error: " + e.getMessage());
-                req.getRequestDispatcher("/error.jsp").forward(req, resp);
+                String errorMessage = "Lỗi máy chủ: " + e.getMessage();
+                resp.sendRedirect(req.getContextPath() + "/secured/user/sell-product?error=" + URLEncoder.encode(errorMessage, "UTF-8"));
             }
         }
     }

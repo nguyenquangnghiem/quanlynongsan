@@ -8,7 +8,7 @@
 <div class="container my-5">
     <h4 class="fw-bold mb-4">Báo cáo sản phẩm</h4>
 
-    <form action="<%= request.getContextPath() %>/secured/user/report-product" method="post">
+    <form action="<%= request.getContextPath() %>/user/report-product" method="post">
         <input type="hidden" name="productId" value="<%= productId %>">
 
         <div class="mb-3">

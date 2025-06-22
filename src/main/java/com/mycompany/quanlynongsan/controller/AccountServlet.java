@@ -36,6 +36,16 @@ public class AccountServlet extends HttpServlet {
         String roleIdParam = req.getParameter("roleId"); // 🔔 lấy roleId từ URL nếu có
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
+        String success = req.getParameter("success");
+        String error = req.getParameter("error");
+        if (success != null) {
+            success = java.net.URLDecoder.decode(success, "UTF-8");
+            req.setAttribute("success", success);
+        }
+        if (error != null) {
+            error = java.net.URLDecoder.decode(error, "UTF-8");
+            req.setAttribute("error", error);
+        }
         List<UserWithRole> users;
         if (roleIdParam != null && !roleIdParam.isBlank()) {
             try {

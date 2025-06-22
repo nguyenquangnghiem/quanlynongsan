@@ -207,7 +207,7 @@
             width: 100%;
 
         }
-        
+
         .breadcrumb div {
             color: var(--Gray-Scale-Gray-400, #999);
             /* Body Medium/Body Medium, 400 */
@@ -296,53 +296,79 @@
             cursor: pointer;
             border-radius: 4px;
         }
-        
+
         .dropdown {
-        position: relative;
-        display: inline-block;
-    }
+            position: relative;
+            display: inline-block;
+        }
 
-    .dropdown-toggle {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 12px;
-        color: inherit;
-        text-decoration: none;
-    }
+        .dropdown-toggle {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            color: inherit;
+            text-decoration: none;
+        }
 
-    .dropdown-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        min-width: 180px;
-        background-color: #fff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        border-radius: 6px;
-        padding: 6px 0;
-        z-index: 1000;
-    }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 180px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border-radius: 6px;
+            padding: 6px 0;
+            z-index: 1000;
+        }
 
-    .dropdown-menu a {
-        display: block;
-        padding: 8px 16px;
-        color: #333;
-        text-decoration: none;
-        transition: background-color 0.2s;
-    }
+        .dropdown-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
 
-    .dropdown-menu a:hover {
-        background-color: #f0f0f0;
-    }
+        .dropdown-menu a:hover {
+            background-color: #f0f0f0;
+        }
 
-    .dropdown.open .dropdown-menu {
-        display: block;
-    }
+        .dropdown.open .dropdown-menu {
+            display: block;
+        }
 
     </style>
+    <% String error = (String) request.getAttribute("error"); %>
+<% String success = (String) request.getAttribute("success"); %>
+<%
+    if(success == null && error == null){
+    success = request.getParameter("success");
+    error = request.getParameter("error");
+
+    if (success != null) {
+        success = java.net.URLDecoder.decode(success, "UTF-8");
+        }
+    if (error != null) {
+        error = java.net.URLDecoder.decode(error, "UTF-8");
+    }
+    }
+%>
     <body>
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+            <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto" id="toast-title">Thông báo</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="toast-body">
+                </div>
+            </div>
+        </div>
+
         <header>
             <div class="top">
                 <div class="header__address">
@@ -420,7 +446,7 @@
                         <p>Trang chủ</p>
                     </div>
                 </a>
-                    <% } %>
+                <% } %>
 
                 <% if (currentUser != null && roleId != null) { %>
                 <% if (roleId == 1) { %>
@@ -436,13 +462,13 @@
                         <p>Sản phẩm đã bán</p>
                     </div>
                 </a>
-                    
-                     <a href="${pageContext.request.contextPath}/user/return-requests.jsp" style="text-decoration: none; color: inherit;">
+
+                <a href="${pageContext.request.contextPath}/user/return-requests.jsp" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Yêu cầu trả hàng</p>
                     </div>
                 </a>
-                    
+
 
                 <div class="dropdown">
                     <div class="dropdown-toggle" onclick="toggleDropdown(this)">
@@ -455,7 +481,7 @@
                         <a href="${pageContext.request.contextPath}/secured/user/pending-orders?status=canceled">Đơn hàng đã hủy/trả</a>
                     </div>
                 </div>
-                    
+
                 <a href="${pageContext.request.contextPath}/secured/user/revenue-report" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Báo cáo doanh thu</p>
@@ -493,25 +519,25 @@
                         <p>Đơn hàng của tôi</p>
                     </div>
                 </a>
-                    
+
                 <a href="${pageContext.request.contextPath}/secured/user/orders-not-imported" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Đơn hàng chưa nhập kho</p>
                     </div>
                 </a>
-                    <a href="${pageContext.request.contextPath}/user/return-requests.jsp" style="text-decoration: none; color: inherit;">
+                <a href="${pageContext.request.contextPath}/user/return-requests.jsp" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Yêu cầu trả hàng</p>
                     </div>
                 </a>
-                    
-                    <a href="${pageContext.request.contextPath}/user/my-return-requests.jsp" style="text-decoration: none; color: inherit;">
+
+                <a href="${pageContext.request.contextPath}/user/my-return-requests.jsp" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Yêu cầu trả hàng của tôi</p>
                     </div>
                 </a>
-                    
-                    <div class="dropdown">
+
+                <div class="dropdown">
                     <div class="dropdown-toggle" onclick="toggleDropdown(this)">
                         <p class="mb-0">Đơn hàng</p>
                     </div>
@@ -522,7 +548,7 @@
                         <a href="${pageContext.request.contextPath}/secured/user/pending-orders?status=canceled">Đơn hàng đã hủy/trả</a>
                     </div>
                 </div>
-                    <div class="dropdown">
+                <div class="dropdown">
                     <div class="dropdown-toggle" onclick="toggleDropdown(this)">
                         <p class="mb-0">Báo cáo</p>
                     </div>
@@ -536,32 +562,32 @@
                         <p>Kho của tôi</p>
                     </div>
                 </a>
-                    <% } else if (roleId == 4) { %>
-                         <a href="${pageContext.request.contextPath}/secured/admin/account" style="text-decoration: none; color: inherit;">
+                <% } else if (roleId == 4) { %>
+                <a href="${pageContext.request.contextPath}/secured/admin/account" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Danh sách tài khoản</p>
                     </div>
                 </a>
                 </a>
-                         <a href="${pageContext.request.contextPath}/secured/admin/product-pending" style="text-decoration: none; color: inherit;">
+                <a href="${pageContext.request.contextPath}/secured/admin/product-pending" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Danh sách sản phẩm chờ duyệt</p>
                     </div>
                 </a>
-                    
-                    </a>
-                         <a href="${pageContext.request.contextPath}/secured/admin/system-revenue-report" style="text-decoration: none; color: inherit;">
+
+                </a>
+                <a href="${pageContext.request.contextPath}/secured/admin/system-revenue-report" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Báo cáo doanh thu</p>
                     </div>
                 </a>
-                    </a>
-                         <a href="${pageContext.request.contextPath}/secured/admin/behavior-logs" style="text-decoration: none; color: inherit;">
+                </a>
+                <a href="${pageContext.request.contextPath}/secured/admin/behavior-logs" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Giám sát hành vi</p>
                     </div>
                 </a>
-                         <a href="${pageContext.request.contextPath}/secured/admin/solve-problem" style="text-decoration: none; color: inherit;">
+                <a href="${pageContext.request.contextPath}/secured/admin/solve-problem" style="text-decoration: none; color: inherit;">
                     <div class="tab">
                         <p>Vấn đề chưa giải quyết</p>
                     </div>
@@ -593,15 +619,15 @@
             src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.js"
         ></script>
         <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const userProfileIcon = document.getElementById("user-profile");
-                if (userProfileIcon) {
-                    userProfileIcon.addEventListener("click", function () {
-                        const contextPath = "<%= request.getContextPath()%>";
-                        window.location.href = contextPath + "/secured/user/profile";
-                    });
-                }
-            });
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const userProfileIcon = document.getElementById("user-profile");
+                            if (userProfileIcon) {
+                                userProfileIcon.addEventListener("click", function () {
+                                    const contextPath = "<%= request.getContextPath()%>";
+                                    window.location.href = contextPath + "/secured/user/profile";
+                                });
+                            }
+                        });
         </script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
@@ -723,7 +749,7 @@
                 });
             });
         </script>
-        
+
         <script>
             function toggleDropdown(element) {
                 const dropdown = element.parentElement;
@@ -731,7 +757,7 @@
             }
 
             // Đóng dropdown khi click ra ngoài
-            window.addEventListener('click', function(e) {
+            window.addEventListener('click', function (e) {
                 document.querySelectorAll('.dropdown').forEach(dropdown => {
                     if (!dropdown.contains(e.target)) {
                         dropdown.classList.remove('open');
@@ -741,3 +767,23 @@
         </script>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <script>
+<% if (success != null) { %>
+    window.addEventListener('load', function() {
+        document.getElementById("toast-title").innerText = "Thành công";
+        document.getElementById("toast-body").innerText = "<%= success %>";
+        var toast = new bootstrap.Toast(document.getElementById('liveToast'));
+        toast.show();
+    });
+<% } %>
+
+<% if (error != null) { %>
+    window.addEventListener('load', function() {
+        document.getElementById("toast-title").innerText = "Lỗi";
+        document.getElementById("toast-body").innerText = "<%= error %>";
+        var toast = new bootstrap.Toast(document.getElementById('liveToast'));
+        toast.show();
+    });
+<% } %>
+</script>

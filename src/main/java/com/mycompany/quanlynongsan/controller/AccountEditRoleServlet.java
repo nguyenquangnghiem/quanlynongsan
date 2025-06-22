@@ -16,7 +16,7 @@ import java.io.IOException;
 public class AccountEditRoleServlet extends HttpServlet {
 
     private UserRepository userRepository = new UserRepository();
-    
+
     private BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
@@ -34,17 +34,29 @@ public class AccountEditRoleServlet extends HttpServlet {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
 
-        try (var conn = com.mycompany.quanlynongsan.config.DatabaseConnection.getConnection();
-             var stmt = conn.prepareStatement("UPDATE [USER] SET role_id = ? WHERE user_id = ?")) {
+        String redirectURL = req.getContextPath() + "/secured/admin/account";
+        try (var conn = com.mycompany.quanlynongsan.config.DatabaseConnection.getConnection(); var stmt = conn.prepareStatement("UPDATE [USER] SET role_id = ? WHERE user_id = ?")) {
+
             stmt.setInt(1, roleId);
             stmt.setInt(2, userId);
-            stmt.executeUpdate();
-            Behavior behavior = behaviorRepository.findByCode("EDIT_USER_ROLE");
-            behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
+            int affected = stmt.executeUpdate();
+
+            if (affected > 0) {
+                Behavior behavior = behaviorRepository.findByCode("EDIT_USER_ROLE");
+                behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
+
+                String msg = java.net.URLEncoder.encode("Thay đổi vai trò thành công!", "UTF-8");
+                resp.sendRedirect(redirectURL + "?success=" + msg);
+            } else {
+                String msg = java.net.URLEncoder.encode("Không tìm thấy người dùng để thay đổi vai trò!", "UTF-8");
+                resp.sendRedirect(redirectURL + "?error=" + msg);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
+            String msg = java.net.URLEncoder.encode("Có lỗi xảy ra khi thay đổi vai trò!", "UTF-8");
+            resp.sendRedirect(redirectURL + "?error=" + msg);
         }
-
-        resp.sendRedirect(req.getContextPath() + "/secured/admin/account");
     }
+
 }

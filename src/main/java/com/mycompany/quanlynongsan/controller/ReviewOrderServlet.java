@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpSession;
  *
  * @author nghiem
  */
-
 @WebServlet(urlPatterns = "/secured/review")
 public class ReviewOrderServlet extends HttpServlet {
 
@@ -34,13 +33,23 @@ public class ReviewOrderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false); // Không tạo mới nếu chưa có
         User user = (User) session.getAttribute("user");
-        Integer orderId = Integer.valueOf(req.getParameter("orderId"));
-        String comment = req.getParameter("comment");
-        Integer rate = Integer.valueOf(req.getParameter("rate"));
-        orderRepository.updateRateAndComment(orderId, rate, comment);
-        Behavior behavior = behaviorRepository.findByCode("SUBMIT_REVIEW");
-        behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-        req.getRequestDispatcher("/user/detail-order.jsp").forward(req, resp);
+        try {
+            Integer orderId = Integer.valueOf(req.getParameter("orderId"));
+            String comment = req.getParameter("comment");
+            Integer rate = Integer.valueOf(req.getParameter("rate"));
+
+            orderRepository.updateRateAndComment(orderId, rate, comment);
+            Behavior behavior = behaviorRepository.findByCode("SUBMIT_REVIEW");
+            behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
+
+            req.setAttribute("success", "Đánh giá của bạn đã được gửi thành công!");
+            req.getRequestDispatcher("/user/detail-order.jsp").forward(req, resp);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            req.setAttribute("error", "Gửi đánh giá thất bại. Vui lòng thử lại.");
+            req.getRequestDispatcher("/user/detail-order.jsp").forward(req, resp);
+        }
     }
 
 }

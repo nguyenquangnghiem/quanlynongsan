@@ -10,7 +10,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -18,7 +20,6 @@ import java.sql.PreparedStatement;
 public class AccountStatusServlet extends HttpServlet {
 
     private UserRepository userRepository = new UserRepository();
-    
     private BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
@@ -28,23 +29,41 @@ public class AccountStatusServlet extends HttpServlet {
         HttpSession session = req.getSession();
         User curUser = (User) session.getAttribute("user");
 
+        String redirectURL = req.getContextPath() + "/secured/admin/account";
+        String success = null;
+        String error = null;
+
         if (user != null) {
-            try (Connection conn = com.mycompany.quanlynongsan.config.DatabaseConnection.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement("UPDATE [USER] SET is_active = ? WHERE user_id = ?")) {
+            try (Connection conn = com.mycompany.quanlynongsan.config.DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement("UPDATE [USER] SET is_active = ? WHERE user_id = ?")) {
+
                 stmt.setBoolean(1, !user.getIsActive()); // Đảo ngược trạng thái
                 stmt.setInt(2, userId);
                 stmt.executeUpdate();
-                if(user.getIsActive()) {
-                    Behavior behavior = behaviorRepository.findByCode("LOCK_USER");
-                    behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
+
+                Behavior behavior;
+                if (user.getIsActive()) {
+                    behavior = behaviorRepository.findByCode("LOCK_USER");
+                    success = "Khóa tài khoản thành công!";
                 } else {
-                    Behavior behavior = behaviorRepository.findByCode("UNLOCK_USER");
-                    behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
+                    behavior = behaviorRepository.findByCode("UNLOCK_USER");
+                    success = "Mở khóa tài khoản thành công!";
                 }
+                behaviorRepository.insertLog(curUser.getUserId(), behavior.getBehaviorId());
+
             } catch (Exception e) {
                 e.printStackTrace();
+                error = "Có lỗi xảy ra khi thay đổi trạng thái tài khoản!";
             }
+        } else {
+            error = "Không tìm thấy tài khoản!";
         }
-        resp.sendRedirect(req.getContextPath() + "/secured/admin/account");
+
+        if (success != null) {
+            redirectURL += "?success=" + URLEncoder.encode(success, "UTF-8");
+        } else if (error != null) {
+            redirectURL += "?error=" + URLEncoder.encode(error, "UTF-8");
+        }
+
+        resp.sendRedirect(redirectURL);
     }
 }

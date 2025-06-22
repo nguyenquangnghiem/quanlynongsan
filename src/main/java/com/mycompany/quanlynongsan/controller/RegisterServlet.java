@@ -44,9 +44,11 @@ public class RegisterServlet extends HttpServlet {
         }
         RegisterRequest request = new RegisterRequest(email, password, roleId);
         if (userDAO.register(request) && password.equals(confirmPassword)) {
-            resp.sendRedirect("login.jsp");
+            req.setAttribute("success", "Đăng ký tài khoản thành công!");
+            req.getRequestDispatcher("login.jsp").forward(req, resp);
         } else {
-            resp.sendRedirect("register.jsp?error=500");
+            req.setAttribute("error", "Tên tài khoản đã bị vô hiệu hóa hoặc mật khẩu không khớp!");
+            req.getRequestDispatcher("register.jsp").forward(req, resp);
         }
     }
 

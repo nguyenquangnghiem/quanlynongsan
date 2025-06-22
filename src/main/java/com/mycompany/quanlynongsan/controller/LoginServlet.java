@@ -25,9 +25,9 @@ import jakarta.servlet.http.HttpSession;
  *
  * @author nghiem
  */
-
-@WebServlet(urlPatterns = { "/login" })
+@WebServlet(urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
+
     final private UserDAO userDAO = new UserDAO();
 
     private CategoryDAO categoryDAO = new CategoryDAO();
@@ -54,14 +54,18 @@ public class LoginServlet extends HttpServlet {
             req.setAttribute("products", products);
             HttpSession session = req.getSession();
             User user = (User) session.getAttribute("user");
+
             if (user.getRoleId() == 4) {
-                resp.sendRedirect(req.getContextPath() + "/secured/admin/account");
+                String message = "Đăng nhập thành công!";
+                String encodedMsg = java.net.URLEncoder.encode(message, "UTF-8");
+                resp.sendRedirect(req.getContextPath() + "/secured/admin/account?success=" + encodedMsg);
             } else {
+                req.setAttribute("success", "Đăng nhập thành công!");
                 req.getRequestDispatcher("user/home.jsp").forward(req, resp);
             }
         } else {
-
-            resp.sendRedirect("login.jsp?error=401");
+            req.setAttribute("error", "Sai tài khoản hoặc mật khẩu!");
+            req.getRequestDispatcher("login.jsp").forward(req, resp);
         }
     }
 

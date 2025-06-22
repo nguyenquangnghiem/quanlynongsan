@@ -47,9 +47,9 @@ public class UserDAO {
                 behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
                 return true;
             }
+            Behavior behavior = behaviorRepository.findByCode("LOGIN_FAILED");
+            behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
         }
-        Behavior behavior = behaviorRepository.findByCode("LOGIN_FAILED");
-        behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
         return false;
     }
 

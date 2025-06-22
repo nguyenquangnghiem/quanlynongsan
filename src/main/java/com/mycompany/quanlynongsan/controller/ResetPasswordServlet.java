@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.IOException;
@@ -15,10 +11,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author nghiem
- */
 @WebServlet("/reset-password")
 public class ResetPasswordServlet extends HttpServlet {
 
@@ -32,14 +24,18 @@ public class ResetPasswordServlet extends HttpServlet {
 
         try {
             userRepo.updatePassword(email, newPassword);
-            String message = "Đặt lại mật khẩu thành công";
-            response.sendRedirect(request.getContextPath() + "/login?success=" + URLEncoder.encode(message, "UTF-8"));
 
+            String message = "Đặt lại mật khẩu thành công. Vui lòng đăng nhập.";
+            response.sendRedirect(
+                request.getContextPath() + "/login.jsp?success=" + URLEncoder.encode(message, "UTF-8")
+            );
         } catch (Exception ex) {
             ex.printStackTrace();
-            String message = "Đã xảy ra lỗi";
-            response.sendRedirect(request.getContextPath() + "/reset-password.jsp?email=" + email + "&error="
-                    + URLEncoder.encode(message, "UTF-8"));
+            String error = "Đã xảy ra lỗi khi đặt lại mật khẩu. Vui lòng thử lại.";
+            response.sendRedirect(
+                request.getContextPath() + "/reset-password.jsp?email=" + email + 
+                "&error=" + URLEncoder.encode(error, "UTF-8")
+            );
         }
     }
 }

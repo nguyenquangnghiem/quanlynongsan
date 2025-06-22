@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import com.mycompany.quanlynongsan.model.ReturnRequest;
@@ -16,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @WebServlet("/secured/user/return-request")
 public class CreateReturnRequestServlet extends HttpServlet {
@@ -26,7 +23,8 @@ public class CreateReturnRequestServlet extends HttpServlet {
         User currentUser = (User) session.getAttribute("user");
 
         if (currentUser == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            String msg = URLEncoder.encode("Bạn chưa đăng nhập!", "UTF-8");
+            response.sendRedirect(request.getContextPath() + "/login.jsp?error=" + msg);
             return;
         }
 
@@ -42,10 +40,13 @@ public class CreateReturnRequestServlet extends HttpServlet {
             ReturnRequestRepository repository = new ReturnRequestRepository();
             repository.create(returnRequest);
 
-            response.sendRedirect(request.getContextPath() + "/user/my-return-requests.jsp?success=1");
+            String successMsg = URLEncoder.encode("Yêu cầu trả hàng đã được gửi!", "UTF-8");
+            response.sendRedirect(request.getContextPath() + "/user/my-return-requests.jsp?success=" + successMsg);
+
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/user/my-return-requests.jsp?error=1");
+            String errorMsg = URLEncoder.encode("❌ Gửi yêu cầu trả hàng thất bại!", "UTF-8");
+            response.sendRedirect(request.getContextPath() + "/user/my-return-requests.jsp?error=" + errorMsg);
         }
     }
 }

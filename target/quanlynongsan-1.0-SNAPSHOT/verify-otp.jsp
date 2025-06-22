@@ -93,12 +93,5 @@
         if (breadcrumb) {
             breadcrumb.innerHTML = '<div><span class="material-symbols-outlined">home</span> &bull; Xác nhận OTP</div>';
         }
-
-        var params = new URLSearchParams(window.location.search);
-        var error = params.get("error");
-        var success = params.get("success");
-
-        if (error) alert(error);
-        if (success) alert(success);
     });
 </script>

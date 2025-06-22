@@ -1,4 +1,4 @@
-package com.mycompany.quanlynongsan.servlet;
+package com.mycompany.quanlynongsan.controller;
 
 import com.mycompany.quanlynongsan.dao.EmailService;
 import com.mycompany.quanlynongsan.model.Contact;
@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Date;
 
 @WebServlet(urlPatterns = "/user/contact")
@@ -20,7 +21,6 @@ public class SendContactServlet extends HttpServlet {
 
     private final ContactRepository contactRepository = new ContactRepository();
     private final UserRepository userRepository = new UserRepository();
-    
     private final EmailService emailService = new EmailService();
 
     @Override
@@ -35,7 +35,7 @@ public class SendContactServlet extends HttpServlet {
 
         try {
             if (fullName == null || phoneNumber == null || description == null || receiverIdParam == null) {
-                throw new IllegalArgumentException("Vui lòng nhập đầy đủ thông tin.");
+                throw new IllegalArgumentException("Vui lòng nhập đầy đủ thông tin liên hệ.");
             }
 
             Integer receiverId = Integer.valueOf(receiverIdParam);
@@ -45,7 +45,7 @@ public class SendContactServlet extends HttpServlet {
             contactRepository.save(contact);
 
             // Gửi email
-            User receiver = userRepository.findById(receiverId); // cần có UserRepository
+            User receiver = userRepository.findById(receiverId);
             if (receiver != null && receiver.getEmail() != null) {
                 String subject = "Bạn có liên hệ mới từ " + fullName;
                 String content = "Họ tên: " + fullName + "\n"
@@ -55,10 +55,13 @@ public class SendContactServlet extends HttpServlet {
                 emailService.sendEmail(receiver.getEmail(), subject, content);
             }
 
-            response.sendRedirect(request.getContextPath() + "/product-detail?productId=" + productId + "&success=true");
+            String successMsg = "Gửi liên hệ thành công!";
+            response.sendRedirect(request.getContextPath() + "/product-detail?productId=" + productId + "&success=" + URLEncoder.encode(successMsg, "UTF-8"));
+
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/product-detail?productId=" + productId + "&error=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
+            String errorMsg = "Gửi liên hệ thất bại: " + e.getMessage();
+            response.sendRedirect(request.getContextPath() + "/product-detail?productId=" + productId + "&error=" + URLEncoder.encode(errorMsg, "UTF-8"));
         }
     }
 }

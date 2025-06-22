@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import com.mycompany.quanlynongsan.model.Behavior;
@@ -17,19 +13,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @WebServlet(name = "CancelOrderServlet", urlPatterns = {"/secured/user/cancel-order"})
 public class CancelOrderServlet extends HttpServlet {
 
     private final OrderRepository orderRepository = new OrderRepository();
-    
-    private BehaviorRepository behaviorRepository = new BehaviorRepository();
+    private final BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String orderIdParam = request.getParameter("orderId");
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
+
+        String redirectURL = request.getContextPath() + "/secured/user/my-order";
 
         try {
             int orderId = Integer.parseInt(orderIdParam);
@@ -38,16 +36,19 @@ public class CancelOrderServlet extends HttpServlet {
             if (order != null && "PENDING".equals(order.getStatus())) {
                 orderRepository.updateStatus(orderId, "CANCELED");
                 Behavior behavior = behaviorRepository.findByCode("CANCEL_ORDER");
-            behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-                response.sendRedirect(request.getContextPath() + "/secured/user/my-order?success=cancel");
+                behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
+
+                String successMsg = URLEncoder.encode("Hủy đơn hàng thành công!", "UTF-8");
+                response.sendRedirect(redirectURL + "?success=" + successMsg);
             } else {
-                // Không thể hủy vì không phải trạng thái PENDING
-                response.sendRedirect(request.getContextPath() + "/secured/user/my-order?error=invalid_status");
+                String errorMsg = URLEncoder.encode("Không thể hủy đơn hàng này!", "UTF-8");
+                response.sendRedirect(redirectURL + "?error=" + errorMsg);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/secured/user/my-order?error=exception");
+            String errorMsg = URLEncoder.encode("Đã xảy ra lỗi khi hủy đơn hàng!", "UTF-8");
+            response.sendRedirect(redirectURL + "?error=" + errorMsg);
         }
     }
 }

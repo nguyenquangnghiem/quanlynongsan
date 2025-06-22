@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 import com.mycompany.quanlynongsan.model.User;
 import com.mycompany.quanlynongsan.repository.HasCartRepository;
@@ -17,16 +14,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- *
- * @author nghiem
- */
-
 @WebServlet(urlPatterns = "/secured/user/favorite-products")
 public class FavoriteProductServlet extends HttpServlet {
 
-    private HasCartRepository hasCartRepository = new HasCartRepository();
-    private HasLikeProductRepository hasLikeProductRepository = new HasLikeProductRepository();
+    private final HasCartRepository hasCartRepository = new HasCartRepository();
+    private final HasLikeProductRepository hasLikeProductRepository = new HasLikeProductRepository();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -36,14 +28,25 @@ public class FavoriteProductServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
+        User user = (User) session.getAttribute("user");
+
         Integer productId = Integer.valueOf(req.getParameter("productId"));
         String action = req.getParameter("action");
-        User user = (User) session.getAttribute("user");
-        if (action.equals("addToCart")) {
-            hasCartRepository.addToCart(user.getUserId(), productId, 1);
-        } else if (action.equals("delete")) {
-            hasLikeProductRepository.removeFavoriteProduct(user.getUserId(), productId);
+
+        try {
+            String successMsg = "";
+            if ("addToCart".equals(action)) {
+                hasCartRepository.addToCart(user.getUserId(), productId, 1);
+                successMsg = "Thêm vào giỏ hàng thành công!";
+            } else if ("delete".equals(action)) {
+                hasLikeProductRepository.removeFavoriteProduct(user.getUserId(), productId);
+                successMsg = "Đã xóa khỏi danh sách yêu thích!";
+            }
+            resp.sendRedirect(req.getContextPath() + "/secured/user/favorite-products?success=" + URLEncoder.encode(successMsg, "UTF-8"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMsg = URLEncoder.encode("❌ Thao tác thất bại!", "UTF-8");
+            resp.sendRedirect(req.getContextPath() + "/secured/user/favorite-products?error=" + errorMsg);
         }
-        req.getRequestDispatcher("/user/favorite-products.jsp").forward(req, resp);
     }
 }

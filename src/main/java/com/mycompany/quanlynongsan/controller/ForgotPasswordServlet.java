@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.IOException;
@@ -19,16 +15,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- *
- * @author nghiem
- */
 @WebServlet("/forgot-password")
 public class ForgotPasswordServlet extends HttpServlet {
 
     private final OtpRepository otpRepo = new OtpRepository();
     private final UserRepository userRepo = new UserRepository();
-    private BehaviorRepository behaviorRepository = new BehaviorRepository();
+    private final BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -40,19 +32,20 @@ public class ForgotPasswordServlet extends HttpServlet {
 
             if (user != null) {
                 otpRepo.createAndSendOtp(email);
+
                 Behavior behavior = behaviorRepository.findByCode("RESET_PASSWORD");
                 behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
-                response.sendRedirect(request.getContextPath() + "/verify-otp.jsp?email=" + email);
+
+                String successMsg = URLEncoder.encode("Đã gửi mã OTP đến email của bạn!", "UTF-8");
+                response.sendRedirect(request.getContextPath() + "/verify-otp.jsp?email=" + email + "&success=" + successMsg);
             } else {
-                String message = "Email không tồn tại";
-                response.sendRedirect(
-                        request.getContextPath() + "/forgot-password?error=" + URLEncoder.encode(message, "UTF-8"));
+                String message = URLEncoder.encode("❌ Email không tồn tại!", "UTF-8");
+                response.sendRedirect(request.getContextPath() + "/forgot-password.jsp?error=" + message);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            String message = "Đã xảy ra lỗi";
-            response.sendRedirect(
-                    request.getContextPath() + "/forgot-password?error=" + URLEncoder.encode(message, "UTF-8"));
+            String message = URLEncoder.encode("❌ Đã xảy ra lỗi khi gửi OTP!", "UTF-8");
+            response.sendRedirect(request.getContextPath() + "/forgot-password.jsp?error=" + message);
         }
     }
 }

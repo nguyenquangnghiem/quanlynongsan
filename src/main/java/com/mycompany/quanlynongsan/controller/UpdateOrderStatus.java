@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.quanlynongsan.controller;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import com.mycompany.quanlynongsan.model.Behavior;
@@ -21,14 +18,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- *
- * @author nghiem
- */
 @WebServlet(urlPatterns = "/secured/user/update-order-status")
 public class UpdateOrderStatus extends HttpServlet {
 
-    private BehaviorRepository behaviorRepository = new BehaviorRepository();
+    private final BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -59,16 +52,14 @@ public class UpdateOrderStatus extends HttpServlet {
                 behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
             }
 
-            // ✅ 3. Chuyển hướng về trang chi tiết đơn hoặc danh sách đơn hàng
-            OrderProductRepository repo = new OrderProductRepository();
-            List<OrderProductRepository.OrderSummary> orders = repo
-                    .getAllRelatedOrderSummariesByUserId(user.getUserId());
-            req.setAttribute("orders", orders);
-            req.getRequestDispatcher("/user/my-order.jsp").forward(req, resp);
+            // ✅ 3. Chuyển hướng về danh sách đơn hàng kèm thông báo
+            String successMsg = "Cập nhật đơn hàng thành công.";
+            resp.sendRedirect(req.getContextPath() + "/user/my-order.jsp?success=" + URLEncoder.encode(successMsg, "UTF-8"));
+
         } catch (Exception e) {
             e.printStackTrace();
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Cập nhật đơn hàng thất bại.");
+            String errorMsg = "Đã xảy ra lỗi khi cập nhật đơn hàng.";
+            resp.sendRedirect(req.getContextPath() + "/user/my-order.jsp?error=" + URLEncoder.encode(errorMsg, "UTF-8"));
         }
     }
-
 }
