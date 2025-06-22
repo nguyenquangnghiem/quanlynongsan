@@ -34,7 +34,7 @@
                 <%
                     for (Integer fav : productIds) {
                         Product product = productRepo.findById(fav);
-                        List<ImageProduct> images = imageRepo.findAllByProductId(fav);
+                        List<ImageProduct> images = imageRepo.findByProductId(fav);
                         String imageUrl = (images != null && !images.isEmpty()) ? images.get(0).getUrlImage() : "default.png";
                 %>
                 <tr>
@@ -77,3 +77,9 @@
 </div>
 
 <jsp:include page="../footer.jsp" />
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const breadcrumb = document.querySelector(".breadcrumb").innerHTML = `<div><span class="material-symbols-outlined">home</span> &bull; Sản phẩm yêu thích</div>`;
+    });
+</script>

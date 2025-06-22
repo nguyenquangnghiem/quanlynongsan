@@ -4,16 +4,18 @@
  */
 package com.mycompany.quanlynongsan.controller;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.mycompany.quanlynongsan.model.User;
 import com.mycompany.quanlynongsan.repository.ProductRepository;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.List;
 
 /**
  *
@@ -24,7 +26,8 @@ public class SoldProductServlet extends HttpServlet {
     private final ProductRepository productRepository = new ProductRepository();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
 
@@ -33,7 +36,8 @@ public class SoldProductServlet extends HttpServlet {
             return;
         }
 
-        List<ProductRepository.ProductSoldSummary> soldProducts = productRepository.getSoldProductsByUserId(currentUser.getUserId());
+        List<ProductRepository.ProductSoldSummary> soldProducts = productRepository
+                .getSoldProductsByUserId(currentUser.getUserId());
         request.setAttribute("soldProducts", soldProducts);
 
         request.getRequestDispatcher("/user/sold-products.jsp").forward(request, response);

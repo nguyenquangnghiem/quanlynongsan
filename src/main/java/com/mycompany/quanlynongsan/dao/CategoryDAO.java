@@ -4,21 +4,22 @@
  */
 package com.mycompany.quanlynongsan.dao;
 
+import java.util.List;
+
 import com.mycompany.quanlynongsan.model.Category;
 import com.mycompany.quanlynongsan.repository.CategoryRepository;
-import java.util.List;
 
 /**
  *
  * @author nghiem
  */
 public class CategoryDAO {
-    
+
     private CategoryRepository categoryRepository = new CategoryRepository();
 
     public CategoryDAO() {
     }
-    
+
     public List<Category> findAll() {
         return categoryRepository.findAll();
     }

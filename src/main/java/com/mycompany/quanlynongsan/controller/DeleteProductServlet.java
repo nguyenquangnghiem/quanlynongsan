@@ -4,26 +4,32 @@
  */
 package com.mycompany.quanlynongsan.controller;
 
+import java.io.IOException;
+import java.util.List;
+
+import com.mycompany.quanlynongsan.model.Behavior;
 import com.mycompany.quanlynongsan.model.Product;
 import com.mycompany.quanlynongsan.model.User;
+import com.mycompany.quanlynongsan.repository.BehaviorRepository;
 import com.mycompany.quanlynongsan.repository.ProductRepository;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.List;
 
 /**
  *
  * @author nghiem
  */
 @WebServlet(urlPatterns = "/secured/user/delete-product")
-public class DeleteProductServlet extends HttpServlet{
-    
+public class DeleteProductServlet extends HttpServlet {
+
     private ProductRepository productRepository = new ProductRepository();
+
+    private BehaviorRepository behaviorRepository = new BehaviorRepository();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,9 +37,11 @@ public class DeleteProductServlet extends HttpServlet{
         productRepository.deleteProduct(idProduct);
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
+        Behavior behavior = behaviorRepository.findByCode("DELETE_PRODUCT");
+        behaviorRepository.insertLog(user.getUserId(), behavior.getBehaviorId());
         List<Product> products = productRepository.findByHolderId(user.getUserId());
         req.setAttribute("products", products);
         req.getRequestDispatcher("/user/my-product.jsp").forward(req, resp);
     }
-    
+
 }

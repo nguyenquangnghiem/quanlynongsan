@@ -8,7 +8,7 @@
 <div class="container my-5">
     <h2 class="text-center mb-4">Giỏ hàng của tôi</h2>
     <c:set var="subtotal" value="0" />
-<c:forEach var="item" items="${requestScope.summary.items}">
+<c:forEach var="item" items="${requestScope.summary.itemCartResponses}">
     <c:set var="subtotal" value="${subtotal + (item.price * item.quantity)}" />
 </c:forEach>
     <form id="checkoutForm" action="${pageContext.request.contextPath}/secured/checkout?totalPrice=${subtotal}" method="post">
@@ -23,7 +23,7 @@
                 </tr>
             </thead>
             <tbody>
-                <c:forEach var="item" items="${requestScope.summary.items}">
+                <c:forEach var="item" items="${requestScope.summary.itemCartResponses}">
                     <tr>
                         <td class="d-flex align-items-center justify-content-center gap-3">
                             <img src="${item.image}" alt="${item.productName}" width="60" height="60">
@@ -129,5 +129,19 @@
             }
             // Không cần preventDefault vì vẫn muốn form submit sau khi set action
         });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const breadcrumb = document.querySelector(".breadcrumb").innerHTML = `<div><span class="material-symbols-outlined">home</span> &bull; Chi tiết giỏ hàng</div>`;
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("incompleteProfile") === "true") {
+            alert("Vui lòng cập nhật đầy đủ họ tên, số điện thoại và địa chỉ trước khi thanh toán.");
+        }
     });
 </script>

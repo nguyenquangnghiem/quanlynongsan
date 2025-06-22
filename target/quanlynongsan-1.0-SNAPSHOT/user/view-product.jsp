@@ -1,3 +1,5 @@
+<%@page import="com.mycompany.quanlynongsan.model.User"%>
+<%@page import="com.mycompany.quanlynongsan.repository.CategoryRepository"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="com.mycompany.quanlynongsan.model.Product"%>
@@ -6,8 +8,9 @@
 
 <%
     Product product = (Product) request.getAttribute("product");
+    CategoryRepository categoryRepository = new CategoryRepository();
     List<Category> allCategories = (List<Category>) request.getAttribute("allCategories"); // full danh mục
-    List<Integer> selectedCategoryIds = (List<Integer>) request.getAttribute("selectedCategoryIds"); // danh mục đã chọn
+    List<Category> selectedCategoryIds = (List<Category>) request.getAttribute("selectedCategoryIds"); // danh mục đã chọn
 %>
 
 <div class="container py-5" style="max-width: 900px;">
@@ -33,13 +36,19 @@
             <div class="mb-3">
                 <label class="form-label">Danh mục sản phẩm</label>
                 <select class="form-select" multiple disabled>
-                    <% for (Category cat : allCategories) { %>
-                        <option value="<%= cat.getCategoryId() %>" <%= selectedCategoryIds.contains(cat.getCategoryId()) ? "selected" : "" %>>
+                    <% for (Category cat : selectedCategoryIds) { %>
+                        <option value="<%= cat.getCategoryId() %>">
                             <%= cat.getName() %>
                         </option>
                     <% } %>
                 </select>
             </div>
+                
+            <div class="mb-3">
+                <label class="form-label">Đăng bán</label>
+                <input type="text" class="form-control" value="<%= product.getIsSell()? "Có" : "Không" %>" readonly>
+            </div>
+
 
             <div class="mb-3">
                 <label class="form-label">Giá tiền (VNĐ)</label>
@@ -48,7 +57,13 @@
 
             <div class="mb-3">
                 <label class="form-label">Trạng thái</label>
-                <input type="text" class="form-control" value="<%= product.getStatus() %>" readonly>
+                <input type="text" class="form-control" 
+                       value="<%= 
+                           "BINH_THUONG".equals(product.getStatus()) ? "Bình thường" :
+                           "SAP_HET_HAN".equals(product.getStatus()) ? "Sắp hết hạn" :
+                           "HET_HAN".equals(product.getStatus()) ? "Hết hạn" :
+                           product.getStatus()
+                       %>" readonly>
             </div>
 
             <div class="mb-3">
@@ -72,9 +87,21 @@
                 <% } %>
             </div>
 
-            <div class="d-grid mt-4">
-                <a href="${pageContext.request.contextPath}/secured/user/my-products" class="btn btn-secondary">Quay lại danh sách</a>
-            </div>
+            <%
+    User user = (User) session.getAttribute("user");
+    String backUrl = request.getContextPath() + "/secured/user/my-products"; // Mặc định quay về my-products
+    if (user != null) {
+         if (user.getRoleId() == 2) {
+            backUrl = request.getContextPath() + "/secured/user/my-stock"; // Nếu là user (role_id = 2)
+        } else if (user.getRoleId() == 4) {
+            backUrl = request.getContextPath() + "/secured/admin/product-pending"; // Nếu là user (role_id = 2)
+                }
+    }
+%>
+
+<div class="d-grid mt-4">
+    <a href="<%= backUrl %>" class="btn btn-secondary">Quay lại danh sách</a>
+</div>
         </div>
     </div>
 </div>

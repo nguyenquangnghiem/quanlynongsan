@@ -32,18 +32,16 @@
                                 <td>${order.address}</td>
                                 <td><strong class="text-danger">${order.totalPrice}₫</strong></td>
                                 <td class="text-center">
-                                    <form action="${pageContext.request.contextPath}/secured/user/confirm-order" method="post" class="d-inline">
+                                    <form action="${pageContext.request.contextPath}/secured/user/pending-orders?action=confirm" method="post" class="d-inline">
                                         <input type="hidden" name="orderId" value="${order.id}" />
                                         <button type="submit" name="action" value="confirm" class="btn btn-success btn-sm me-1">
-                                            ✅ Xác nhận
-                                        </button>
-                                        <button type="submit" name="action" value="reject" class="btn btn-outline-danger btn-sm me-1">
-                                            ❌ Từ chối
+                                            Xác nhận
                                         </button>
                                     </form>
-                                    <a href="${pageContext.request.contextPath}/secured/user/order-detail?orderId=${order.id}" class="btn btn-primary btn-sm">
-                                        🔎 Chi tiết
-                                    </a>
+                                    <form action="${pageContext.request.contextPath}/secured/user/pending-orders?action=detail" method="post" class="d-inline">
+                                        <input type="hidden" name="orderId" value="${order.id}" />
+                                        <button class="btn btn-primary btn-sm" type="submit" >Chi tiết</button>
+                                    </form>
                                 </td>
                             </tr>
                         </c:forEach>

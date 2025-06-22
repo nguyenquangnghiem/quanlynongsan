@@ -57,6 +57,5 @@ public class Otp {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
-    
-    
+
 }

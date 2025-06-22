@@ -128,6 +128,13 @@
                 </button>
             </div>
             
+            <!-- Thêm nút liên hệ ở đây -->
+            <div class="mt-3">
+                <a href="${pageContext.request.contextPath}/contact-form.jsp?productId=${product.productId}" class="btn btn-primary w-100">
+                    <i class="fas fa-envelope"></i> Liên hệ người bán
+                </a>
+            </div>
+            
             <div class="divider"></div>
         </div>
             <div class="container mt-5">
@@ -173,9 +180,8 @@
             });
 
             // ✅ Xử lý nếu chưa đăng nhập
-            if (response.status === 401) {
-                window.location.href = contextPath + "/login.jsp"; // 👉 Chuyển hướng về trang login
-                return; // Dừng luôn
+             if (response.status === 401) {
+                return false; // Dừng luôn
             }
 
             if (!response.ok) {
@@ -207,6 +213,11 @@
         $('#productDetailPageLink').attr('href', contextPath + '/product-detail?productId=' + productId);
 
     })();
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const breadcrumb = document.querySelector(".breadcrumb").innerHTML = `<div><span class="material-symbols-outlined">home</span> &bull; Trang chủ &bull; Tìm kiếm &bull; Chi tiết sản phẩm</div>`;
+    });
 </script>
 <script>
     
@@ -249,10 +260,36 @@
             const contextPath = "/" + window.location.pathname.split('/')[1];
             if (isFavorited) {
             // Gọi API bỏ yêu thích
-                await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId, { method: 'DELETE' });
+                const response = await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId + `&action=delete`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                // ✅ Xử lý nếu chưa đăng nhập
+                if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
             } else {
                 // Gọi API thêm vào yêu thích
-                await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId, { method: 'POST' });
+                const response = await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId + `&action=add`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                // ✅ Xử lý nếu chưa đăng nhập
+                if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
             }
 
             // Toggle giao diện sau khi API xong
@@ -269,7 +306,8 @@
                 const response = await fetch(contextPath + `/secured/user/has-cart`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: new URLSearchParams({
                         productId: productId,
@@ -277,6 +315,13 @@
                     }),
                     credentials: 'include' // <-- Quan trọng khi dùng session
                 });
+                
+                 if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
 
                 const result = await response.json();
 

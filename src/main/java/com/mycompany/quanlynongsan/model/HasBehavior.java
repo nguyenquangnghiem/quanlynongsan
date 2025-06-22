@@ -36,6 +36,4 @@ public class HasBehavior {
         this.behaviorId = behaviorId;
     }
 
-    
-    
 }

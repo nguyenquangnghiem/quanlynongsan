@@ -15,18 +15,19 @@ public class Problem {
     String name;
     String reason;
     Boolean isResolved;
-    Integer orderId;
+    Integer productId;
     Date createdDate;
 
     public Problem() {
     }
 
-    public Problem(Integer problemId, String name, String reason, Boolean isResolved, Integer orderId, Date createdDate) {
+    public Problem(Integer problemId, String name, String reason, Boolean isResolved, Integer productId,
+            Date createdDate) {
         this.problemId = problemId;
         this.name = name;
         this.reason = reason;
         this.isResolved = isResolved;
-        this.orderId = orderId;
+        this.productId = productId;
         this.createdDate = createdDate;
     }
 
@@ -62,12 +63,12 @@ public class Problem {
         this.isResolved = isResolved;
     }
 
-    public Integer getOrderId() {
-        return orderId;
+    public Integer getProductId() {
+        return productId;
     }
 
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
     public Date getCreatedDate() {
@@ -77,6 +78,5 @@ public class Problem {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
-    
-    
+
 }

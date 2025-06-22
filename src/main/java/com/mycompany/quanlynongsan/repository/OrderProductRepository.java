@@ -4,33 +4,37 @@
  */
 package com.mycompany.quanlynongsan.repository;
 
-import com.mycompany.quanlynongsan.config.DatabaseConnection;
-import com.mycompany.quanlynongsan.model.OrderProduct;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.mycompany.quanlynongsan.config.DatabaseConnection;
+import com.mycompany.quanlynongsan.model.OrderProduct;
 
 /**
  *
  * @author nghiem
  */
 public class OrderProductRepository {
-    
+
     // Lấy trung bình số sao của 1 sản phẩm
     private static final String AVG_RATE_BY_PRODUCT = "SELECT AVG(CAST(o.rate AS FLOAT)) AS avg_rate FROM [ORDER] o JOIN ORDER_PRODUCT op ON o.order_id = op.order_id WHERE op.product_id = ? AND o.rate IS NOT NULL ";
 
     // Lấy số lượt đánh giá của 1 sản phẩm
     private static final String COUNT_RATE_BY_PRODUCT = "SELECT COUNT(*) AS total_reviews FROM [ORDER] o JOIN ORDER_PRODUCT op ON o.order_id = op.order_id WHERE op.product_id = ? AND o.rate IS NOT NULL";
 
-    public OrderProductRepository() {}
+    public OrderProductRepository() {
+    }
 
     // Hàm lấy trung bình số sao
     public Double getAverageRateByProductId(int productId) {
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(AVG_RATE_BY_PRODUCT)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(AVG_RATE_BY_PRODUCT)) {
+
             stmt.setInt(1, productId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -45,8 +49,8 @@ public class OrderProductRepository {
     // Hàm lấy số lượt đánh giá
     public int getNumberOfReviewsByProductId(int productId) {
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(COUNT_RATE_BY_PRODUCT)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(COUNT_RATE_BY_PRODUCT)) {
+
             stmt.setInt(1, productId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -57,23 +61,23 @@ public class OrderProductRepository {
         }
         return 0;
     }
-    
+
     public List<OrderSummary> getOrderSummariesByUserId(int userId) {
         List<OrderSummary> orders = new ArrayList<>();
 
-        String sql = "SELECT " +
-                     "o.order_id, o.created_date, o.status, " +
-                     "SUM(p.price * op.quantity) AS total_price, " +
-                     "SUM(op.quantity) AS total_products " +
-                     "FROM [ORDER] o " +
-                     "JOIN ORDER_PRODUCT op ON o.order_id = op.order_id " +
-                     "JOIN PRODUCT p ON op.product_id = p.product_id " +
-                     "WHERE o.user_id = ? " +
-                     "GROUP BY o.order_id, o.created_date, o.status " +
-                     "ORDER BY o.created_date DESC";
+        String sql = "SELECT "
+                + "o.order_id, o.created_date, o.status, "
+                + "SUM(p.price * op.quantity) AS total_price, "
+                + "COUNT(op.product_id) AS total_products "
+                + "FROM [ORDER] o "
+                + "JOIN ORDER_PRODUCT op ON o.order_id = op.order_id "
+                + "JOIN PRODUCT p ON op.product_id = p.product_id "
+                + "WHERE o.user_id = ? "
+                + "GROUP BY o.order_id, o.created_date, o.status "
+                + "ORDER BY o.created_date DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
@@ -94,77 +98,142 @@ public class OrderProductRepository {
 
         return orders;
     }
-    
+
+    public List<OrderSummary> getAllRelatedOrderSummariesByUserId(int userId) {
+        List<OrderSummary> orders = new ArrayList<>();
+
+        String sql = "SELECT o.order_id, o.created_date, o.status, "
+                + "SUM(p.price * op.quantity) AS total_price, "
+                + "COUNT(op.product_id) AS total_products "
+                + "FROM [ORDER] o "
+                + "JOIN ORDER_PRODUCT op ON o.order_id = op.order_id "
+                + "JOIN PRODUCT p ON op.product_id = p.product_id "
+                + "WHERE o.user_id = ? OR p.holder_id = ? "
+                + "GROUP BY o.order_id, o.created_date, o.status "
+                + "ORDER BY o.created_date DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId); // ✅ Đơn bạn đặt
+            stmt.setInt(2, userId); // ✅ Đơn người khác đặt sản phẩm của bạn
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int orderId = rs.getInt("order_id");
+                java.sql.Date createdDate = rs.getDate("created_date");
+                String status = rs.getString("status");
+                double totalPrice = rs.getDouble("total_price");
+                int totalProducts = rs.getInt("total_products");
+
+                orders.add(new OrderSummary(orderId, createdDate, status, totalPrice, totalProducts));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return orders;
+    }
+
     public List<OrderProduct> getProductsByOrderId(int orderId) {
-    List<OrderProduct> products = new ArrayList<>();
+        List<OrderProduct> products = new ArrayList<>();
 
-    String sql = "SELECT op.order_id, op.product_id, op.quantity " +
-                 "FROM ORDER_PRODUCT op " +
-                 "WHERE op.order_id = ?";
+        String sql = "SELECT op.order_id, op.product_id, op.quantity "
+                + "FROM ORDER_PRODUCT op "
+                + "WHERE op.order_id = ?";
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        stmt.setInt(1, orderId);
-        ResultSet rs = stmt.executeQuery();
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
 
-        while (rs.next()) {
-            Integer oId = rs.getInt("order_id");
-            Integer productId = rs.getInt("product_id");
-            Integer quantity = rs.getInt("quantity");
+            while (rs.next()) {
+                Integer oId = rs.getInt("order_id");
+                Integer productId = rs.getInt("product_id");
+                Integer quantity = rs.getInt("quantity");
 
-            OrderProduct op = new OrderProduct(oId, productId, quantity);
-            products.add(op);
+                OrderProduct op = new OrderProduct(oId, productId, quantity);
+                products.add(op);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-    } catch (Exception ex) {
-        ex.printStackTrace();
+
+        return products;
     }
 
-    return products;
-}
-    
+    public List<OrderSummary> findConfirmedOrdersNotInStock(int holderId) {
+        String sql = ""
+                + "SELECT o.order_id, o.created_date, o.status,\n"
+                + "               SUM(p.price * op.quantity) AS total_price,\n"
+                + "               SUM(op.quantity) AS total_products\n"
+                + "        FROM [ORDER] o\n"
+                + "        JOIN ORDER_PRODUCT op ON o.order_id = op.order_id\n"
+                + "        JOIN PRODUCT p ON op.product_id = p.product_id\n"
+                + "        WHERE (o.status = 'REVIEWED' OR o.status = 'SUCCESSFUL')\n"
+                + "          AND o.user_id = ? -- nếu bạn có lưu người tạo đơn\n"
+                + "          AND o.is_imported = 0 -- hoặc trạng thái gì đó cho biết đã nhập kho chưa\n"
+                + "        GROUP BY o.order_id, o.created_date, o.status";
+
+        List<OrderSummary> list = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, holderId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                OrderSummary os = new OrderSummary(rs.getInt("order_id"),
+                        new Date(rs.getTimestamp("created_date").getTime()), rs.getString("status"),
+                        rs.getDouble("total_price"), rs.getInt("total_products"));
+                list.add(os);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public OrderSummary getOrderSummaryByOrderId(int orderId) {
-    String sql = "SELECT " +
-                 "o.order_id, o.created_date, o.status, " +
-                 "SUM(p.price * op.quantity) AS total_price, " +
-                 "SUM(op.quantity) AS total_products " +
-                 "FROM [ORDER] o " +
-                 "JOIN ORDER_PRODUCT op ON o.order_id = op.order_id " +
-                 "JOIN PRODUCT p ON op.product_id = p.product_id " +
-                 "WHERE o.order_id = ? " +
-                 "GROUP BY o.order_id, o.created_date, o.status";
+        String sql = "SELECT "
+                + "o.order_id, o.created_date, o.status, "
+                + "SUM(p.price * op.quantity) AS total_price, "
+                + "SUM(op.quantity) AS total_products "
+                + "FROM [ORDER] o "
+                + "JOIN ORDER_PRODUCT op ON o.order_id = op.order_id "
+                + "JOIN PRODUCT p ON op.product_id = p.product_id "
+                + "WHERE o.order_id = ? "
+                + "GROUP BY o.order_id, o.created_date, o.status";
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        stmt.setInt(1, orderId);
-        ResultSet rs = stmt.executeQuery();
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
 
-        if (rs.next()) {
-            java.sql.Date createdDate = rs.getDate("created_date");
-            String status = rs.getString("status");
-            double totalPrice = rs.getDouble("total_price");
-            int totalProducts = rs.getInt("total_products");
+            if (rs.next()) {
+                java.sql.Date createdDate = rs.getDate("created_date");
+                String status = rs.getString("status");
+                double totalPrice = rs.getDouble("total_price");
+                int totalProducts = rs.getInt("total_products");
 
-            return new OrderSummary(orderId, createdDate, status, totalPrice, totalProducts);
+                return new OrderSummary(orderId, createdDate, status, totalPrice, totalProducts);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-    } catch (Exception ex) {
-        ex.printStackTrace();
+
+        return null; // nếu không tìm thấy
     }
 
-    return null; // nếu không tìm thấy
-}
-
-
-    
     public class OrderSummary {
+
         private int orderId;
         private String status;
         private java.sql.Date createdDate;
         private double totalPrice;
         private int totalProducts;
 
-        public OrderSummary(int orderId, java.sql.Date createdDate, String status, double totalPrice, int totalProducts) {
+        public OrderSummary(int orderId, java.sql.Date createdDate, String status, double totalPrice,
+                int totalProducts) {
             this.orderId = orderId;
             this.createdDate = createdDate;
             this.status = status;
@@ -173,11 +242,25 @@ public class OrderProductRepository {
         }
 
         // Getters
-        public int getOrderId() { return orderId; }
-        public java.sql.Date getCreatedDate() { return createdDate; }
-        public String getStatus() { return status; }
-        public double getTotalPrice() { return totalPrice; }
-        public int getTotalProducts() { return totalProducts; }
+        public int getOrderId() {
+            return orderId;
+        }
+
+        public java.sql.Date getCreatedDate() {
+            return createdDate;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public double getTotalPrice() {
+            return totalPrice;
+        }
+
+        public int getTotalProducts() {
+            return totalProducts;
+        }
     }
 
 }

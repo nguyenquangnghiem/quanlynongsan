@@ -35,6 +35,5 @@ public class OrderDelivery {
     public void setDeliveryId(Integer deliveryId) {
         this.deliveryId = deliveryId;
     }
-    
-    
+
 }

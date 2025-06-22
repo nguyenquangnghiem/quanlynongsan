@@ -19,11 +19,13 @@ public class Order {
     String paymentMethod;
     Integer userId;
     Date createdDate;
+    Boolean isImported;
 
     public Order() {
     }
 
-    public Order(Integer orderId, Date estimatedTime, String comment, String status, Integer rate, String paymentMethod, Integer userId, Date createdDate) {
+    public Order(Integer orderId, Date estimatedTime, String comment, String status, Integer rate, String paymentMethod,
+            Integer userId, Date createdDate, Boolean isImported) {
         this.orderId = orderId;
         this.estimatedTime = estimatedTime;
         this.comment = comment;
@@ -32,6 +34,7 @@ public class Order {
         this.paymentMethod = paymentMethod;
         this.userId = userId;
         this.createdDate = createdDate;
+        this.isImported = isImported;
     }
 
     public Integer getOrderId() {
@@ -98,6 +101,11 @@ public class Order {
         this.createdDate = createdDate;
     }
 
-    
-    
+    public Boolean getIsImported() {
+        return isImported;
+    }
+
+    public void setIsImported(Boolean isImported) {
+        this.isImported = isImported;
+    }
 }

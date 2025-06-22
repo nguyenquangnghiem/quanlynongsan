@@ -45,6 +45,5 @@ public class ImageOrder {
     public void setUrlImage(String urlImage) {
         this.urlImage = urlImage;
     }
-    
-    
+
 }

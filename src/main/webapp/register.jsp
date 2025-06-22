@@ -1,129 +1,109 @@
-<%-- 
-    Document   : login
-    Created on : 5 June 2025, 5:45:07 pm
-    Author     : nghiem
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <jsp:include page="/header.jsp" />
+
 <style>
-    .login{
+    .login {
         border-radius: 8px;
-        border: 1px solid var(--Gray-Scale-Gray-50, #F2F2F2);
-        background: var(--Gray-Scale-White, #FFF);
-        box-shadow: 0px 0px 56px 0px rgba(0, 38, 3, 0.08);
+        border: 1px solid #F2F2F2;
+        background: #FFF;
+        box-shadow: 0 0 56px rgba(0, 38, 3, 0.08);
         display: flex;
-padding: 24px 24px 32px 24px;
-flex-direction: column;
-align-items: center;
-gap: 20px;
-width: 520px;
-margin: 0 auto;
+        padding: 24px;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        width: 520px;
+        margin: 40px auto;
     }
-    
+
     h1 {
-        color: var(--Gray-Scale-Gray-900, #1A1A1A);
-
-/* Heading 05/Heading 05 — 600 */
-font-family: "Be Vietnam Pro";
-font-size: 32px;
-font-style: normal;
-font-weight: 600;
-line-height: 120%; /* 38.4px */
+        color: #1A1A1A;
+        font-family: "Be Vietnam Pro", sans-serif;
+        font-size: 32px;
+        font-weight: 600;
+        line-height: 120%;
+        margin-bottom: 8px;
     }
-    
-    .email{
-        margin-bottom: 12px;
+
+    .form-outline input.form-control {
+        width: 100%;
+        color: #999;
+        font-family: Poppins, sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 130%;
+        background: transparent;
+        border: none;
+        outline: none;
     }
-    
-     .form-outline input.form-control {
-    width: 472px;
-    color: var(--Gray-Scale-Gray-400, #999);
-font-family: Poppins;
-font-size: 16px;
-font-style: normal;
-font-weight: 400;
-line-height: 130%; /* 20.8px */
-  }
-  
-  .forget-pass{
-      margin-top: 16px;
-      margin-bottom: 20px;
-      color: var(--Gray-Scale-Gray-600, #666);
 
-/* Body Small/Body Small, 400 */
-font-family: "Be Vietnam Pro";
-font-size: 14px;
-font-style: normal;
-font-weight: 400;
-line-height: 150%; /* 21px */
-text-align: right;
-display: block;
-cursor: pointer;
-  }
-  
-  .forget-pass:hover {
-      text-decoration: underline;
-  }
-  .register{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 24px;
-      color: var(--Gray-Scale-Gray-600, #666);
+    .inp {
+        border-radius: 6px;
+        border: 1px solid #E6E6E6;
+        background: #FFF;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+    }
 
-/* Body Small/Body Small, 400 */
-font-family: "Be Vietnam Pro";
-font-size: 14px;
-font-style: normal;
-font-weight: 400;
-line-height: 150%; /* 21px */
-  }
-  
-  .register a{
-      color: var(--Gray-Scale-Gray-900, #1A1A1A);
+    .form-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 4px;
+        display: block;
+        font-family: "Be Vietnam Pro", sans-serif;
+    }
 
-/* Body Small/Body Small, 500 */
-font-family: "Be Vietnam Pro";
-font-size: 14px;
-font-style: normal;
-font-weight: 500;
-line-height: 150%; /* 21px */
-cursor: pointer;
-  }
-  
-  .register a:hover{
-      text-decoration: underline;
-  }
-  
-  .inp{
-      border-radius: 6px;
-border: 1px solid var(--Gray-Scale-Gray-100, #E6E6E6);
-background: var(--Gray-Scale-White, #FFF);
-padding: 14px 16px;
-margin-bottom: 24px;
-  }
-  
+    .form-check-label {
+        font-family: "Be Vietnam Pro", sans-serif;
+        color: #1A1A1A;
+        margin-right: 8px;
+        font-size: 14px;
+    }
+
+    .register {
+        display: flex;
+        justify-content: center;
+        margin-top: 24px;
+        color: #666;
+        font-family: "Be Vietnam Pro", sans-serif;
+        font-size: 14px;
+    }
+
+    .register a {
+        color: #1A1A1A;
+        font-weight: 500;
+        margin-left: 5px;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .register a:hover {
+        text-decoration: underline;
+        color: #000;
+    }
 </style>
+
 <div class="login">
-        <h1>Tài khoản mới</h1>
-        <form action="register" method="POST">
-<div class="form-outline email inp" data-mdb-input-init>
-  <input type="text" name="email" id="typeText" class="form-control" />
-  <label class="form-label" for="typeText">Email</label>
-</div>
-            <div class="form-outline inp" data-mdb-input-init>
-  <input type="password" id="typeText" name="password" class="form-control" />
-  <label class="form-label" for="typeText">Mật khẩu</label>
-</div>
-            <div class="form-outline inp" data-mdb-input-init>
-  <input type="password" id="typeText" name="confirm-password" class="form-control" />
-  <label class="form-label" for="typeText">Xác nhận mật khẩu</label>
-</div>
-            
-            <!-- Thêm lựa chọn vai trò -->
-        <div class="form-outline inp mb-3" data-mdb-input-init>
-            <label class="form-label d-block mb-2">Loại tài khoản</label>
+    <h1>Tạo tài khoản mới</h1>
+    <form action="register" method="POST">
+
+        <div class="form-outline email inp">
+            <label class="form-label" for="emailInput">Email</label>
+            <input type="text" name="email" id="emailInput" class="form-control" required />
+        </div>
+
+        <div class="form-outline inp">
+            <label class="form-label" for="passwordInput">Mật khẩu</label>
+            <input type="password" name="password" id="passwordInput" class="form-control" required />
+        </div>
+
+        <div class="form-outline inp">
+            <label class="form-label" for="confirmPasswordInput">Xác nhận mật khẩu</label>
+            <input type="password" name="confirm-password" id="confirmPasswordInput" class="form-control" required />
+        </div>
+
+        <div class="form-outline inp">
+            <label class="form-label">Loại tài khoản</label>
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="role" id="farmer" value="FARMER" required />
                 <label class="form-check-label" for="farmer">Nông dân</label>
@@ -133,8 +113,28 @@ margin-bottom: 24px;
                 <label class="form-check-label" for="customer">Khách hàng</label>
             </div>
         </div>
-            <button type="submit" class="btn btn-success w-100" data-mdb-ripple-init>Đăng ký</button>
-            <p class="register">Đã có tài khoản?<a href="login">Đăng nhập</a></p>
-        </form>
+
+        <button type="submit" class="btn btn-success w-100" data-mdb-ripple-init>Đăng ký</button>
+
+        <p class="register">Đã có tài khoản? <a href="login">Đăng nhập</a></p>
+
+    </form>
 </div>
+
 <jsp:include page="/footer.jsp" />
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var breadcrumb = document.querySelector(".breadcrumb");
+        if (breadcrumb) {
+            breadcrumb.innerHTML = '<div><span class="material-symbols-outlined">home</span> &bull; Đăng ký</div>';
+        }
+
+        var params = new URLSearchParams(window.location.search);
+        var error = params.get("error");
+
+        if (error === "500") {
+            alert("Tên tài khoản đã tồn tại hoặc đã bị vô hiệu hóa!");
+        }
+    });
+</script>

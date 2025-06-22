@@ -5,7 +5,8 @@
 package com.mycompany.quanlynongsan.repository;
 
 import com.mycompany.quanlynongsan.config.DatabaseConnection;
-import com.mycompany.quanlynongsan.dto.CartSummary;
+import com.mycompany.quanlynongsan.response.CartSummaryResponse;
+import com.mycompany.quanlynongsan.model.HasCart;
 import com.mycompany.quanlynongsan.model.Product;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -24,6 +25,9 @@ public class HasCartRepository {
 
     private static final String UPDATE_PRODUCT_QUANTITY = 
         "UPDATE HAS_CART SET quantity = quantity + ? WHERE user_id = ? AND product_id = ?";
+    
+    private static final String GET_HAS_CART_BY_USER_ID = 
+        "SELECT * FROM HAS_CART WHERE user_id = ? ";
 
     public HasCartRepository() {
     }
@@ -69,42 +73,22 @@ public class HasCartRepository {
         }
     }
     
-    public CartSummary getCartSummary(int userId) {
-        String sql = " SELECT hc.product_id, p.name, hc.quantity, p.price, img.url_image FROM HAS_CART hc JOIN PRODUCT p ON hc.product_id = p.product_id OUTER APPLY ( SELECT TOP 1 url_image FROM IMAGE_PRODUCT ip WHERE ip.product_id = p.product_id ) img WHERE hc.user_id = ? ";
-
-        List<CartSummary.Items> items = new ArrayList<>();
-        int totalQuantity = 0;
-        double totalPrice = 0.0;
-        CartSummary cart = new CartSummary(0, 0.0, null);
-
+    public List<HasCart> getHasCartByUserId(int userId) {
+        List<HasCart> hasCarts = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+             PreparedStatement stmt = conn.prepareStatement(GET_HAS_CART_BY_USER_ID)) {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 int productId = rs.getInt("product_id");
-                String name = rs.getString("name");
                 int quantity = rs.getInt("quantity");
-                BigDecimal price = rs.getBigDecimal("price");
-                String image = rs.getString("url_image");
-
-                CartSummary.Items item = cart.new Items(name, quantity, image, productId, price);
-                items.add(item);
-
-                totalQuantity += quantity;
-                totalPrice += quantity * price.doubleValue();
+                hasCarts.add(new HasCart(userId, productId, quantity));
             }
-            cart.setItems(items);
-            cart.setTotalQuantity(totalQuantity);
-            cart.setTotalPrice(totalPrice);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return cart;
+        return hasCarts;
     }
     
     /**

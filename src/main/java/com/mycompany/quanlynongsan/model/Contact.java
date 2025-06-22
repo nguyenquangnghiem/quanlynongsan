@@ -21,7 +21,8 @@ public class Contact {
     public Contact() {
     }
 
-    public Contact(Integer contactId, String fullName, String phoneNumber, String description, Integer receiverId, Date createdDate) {
+    public Contact(Integer contactId, String fullName, String phoneNumber, String description, Integer receiverId,
+            Date createdDate) {
         this.contactId = contactId;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
@@ -78,6 +79,4 @@ public class Contact {
         this.createdDate = createdDate;
     }
 
-    
-    
 }

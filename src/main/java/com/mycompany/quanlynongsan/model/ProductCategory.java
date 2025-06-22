@@ -36,6 +36,4 @@ public class ProductCategory {
         this.productId = productId;
     }
 
-    
-    
 }

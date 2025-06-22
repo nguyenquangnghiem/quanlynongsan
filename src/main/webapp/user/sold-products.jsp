@@ -33,7 +33,6 @@
         </tbody>
     </table>
 
-    <a href="${pageContext.request.contextPath}/secured/user/my-products" class="btn btn-secondary mt-3">← Quay lại Sản phẩm của bạn</a>
 </div>
 
 <jsp:include page="../footer.jsp" />

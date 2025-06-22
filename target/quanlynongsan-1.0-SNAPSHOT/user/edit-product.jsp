@@ -1,3 +1,5 @@
+<%@page import="com.mycompany.quanlynongsan.model.User"%>
+<%@page import="java.util.stream.Collectors"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="com.mycompany.quanlynongsan.model.Product"%>
@@ -7,7 +9,7 @@
 <%
     Product product = (Product) request.getAttribute("product");
     List<Category> allCategories = (List<Category>) request.getAttribute("allCategories");
-    List<Integer> selectedCategoryIds = (List<Integer>) request.getAttribute("selectedCategoryIds");
+    List<Category> selectedCategoryIds = (List<Category>) request.getAttribute("selectedCategoryIds");
 %>
 
 <div class="container py-5" style="max-width: 900px;">
@@ -39,12 +41,20 @@
                     <select class="form-select" name="category_ids" multiple required>
                         <% for (Category cat : allCategories) { %>
                             <option value="<%= cat.getCategoryId() %>" 
-                                <%= selectedCategoryIds.contains(cat.getCategoryId()) ? "selected" : "" %>>
+                                    <%= selectedCategoryIds.stream().map(it -> it.getCategoryId()).collect(Collectors.toList()).contains(cat.getCategoryId()) ? "selected" : "" %>>
                                 <%= cat.getName() %>
                             </option>
                         <% } %>
                     </select>
                     <div class="form-text">Giữ Ctrl (hoặc Cmd trên Mac) để chọn nhiều danh mục</div>
+                </div>
+                    
+                <div class="mb-3">
+                    <label class="form-label">Đăng bán</label>
+                    <select class="form-select" name="is_sell" required>
+                        <option value="true" <%= product.getIsSell()? "selected" : "" %>>Có</option>
+                        <option value="false" <%= !product.getIsSell()? "selected" : "" %>>Không</option>
+                    </select>
                 </div>
 
                 <div class="mb-3">
@@ -56,9 +66,9 @@
                     <label class="form-label">Trạng thái</label>
                     <select class="form-select" name="status" required>
                         <option value="">-- Chọn trạng thái --</option>
-                        <option value="Bình thường" <%= "Bình thường".equals(product.getStatus()) ? "selected" : "" %>>Bình thường</option>
-                        <option value="Sắp hết hạn" <%= "Sắp hết hạn".equals(product.getStatus()) ? "selected" : "" %>>Sắp hết hạn</option>
-                        <option value="Hết hạn" <%= "Hết hạn".equals(product.getStatus()) ? "selected" : "" %>>Hết hạn</option>
+                        <option value="BINH_THUONG" <%= "BINH_THUONG".equals(product.getStatus()) ? "selected" : "" %>>Bình thường</option>
+                        <option value="SAP_HET_HAN" <%= "SAP_HET_HAN".equals(product.getStatus()) ? "selected" : "" %>>Sắp hết hạn</option>
+                        <option value="HET_HAN" <%= "HET_HAN".equals(product.getStatus()) ? "selected" : "" %>>Hết hạn</option>
                     </select>
                 </div>
 
@@ -86,12 +96,24 @@
                 <% } %>
 
                 <!-- Hidden fields mặc định -->
-                <input type="hidden" name="is_active" value="true">
-                <input type="hidden" name="is_browse" value="false">
-                <input type="hidden" name="is_sell" value="true">
+                <input type="hidden" name="is_active" value="<%= product.getIsActive() %>">
+                <input type="hidden" name="is_browse" value="<%= product.getIsBrowse() %>">
 
                 <div class="d-grid mt-4">
                     <button type="submit" class="btn btn-warning">Cập nhật sản phẩm</button>
+                                <%
+    User user = (User) session.getAttribute("user");
+    String backUrl = request.getContextPath() + "/secured/user/my-products"; // Mặc định quay về my-products
+    if (user != null) {
+         if (user.getRoleId() == 2) {
+            backUrl = request.getContextPath() + "/secured/user/my-stock"; // Nếu là user (role_id = 2)
+        }
+    }
+%>
+
+<div class="d-grid mt-4">
+    <a href="<%= backUrl %>" class="btn btn-secondary">Quay lại danh sách</a>
+</div>
                 </div>
             </form>
         </div>

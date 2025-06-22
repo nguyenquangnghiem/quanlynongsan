@@ -23,6 +23,7 @@
                     <th>Giá (VNĐ)</th>
                     <th>Số lượng</th>
                     <th>Trạng thái</th>
+                    <th>Đăng bán</th> <!-- ✅ Cột mới -->
                     <th>Thao tác</th>
                 </tr>
             </thead>
@@ -34,7 +35,13 @@
                         <td><%= p.getName() %></td>
                         <td><%= String.format("%,.0f", p.getPrice().doubleValue()) %></td>
                         <td class="text-center"><%= p.getQuantity() %></td>
-                        <td class="text-center"><%= p.getStatus() %></td>
+                        <td class="text-center"><%= 
+               "BINH_THUONG".equals(p.getStatus()) ? "Bình thường" :
+               "SAP_HET_HAN".equals(p.getStatus()) ? "Sắp hết hạn" :
+               "HET_HAN".equals(p.getStatus()) ? "Hết hạn" :
+               p.getStatus()
+           %></td>
+                        <td class="text-center"><%= p.getIsSell()? "Có" : "Không" %></td> <!-- ✅ Hiển thị Có/Không -->
                         <td class="text-center">
                             <a href="${pageContext.request.contextPath}/secured/user/view-product?id=<%= p.getProductId() %>" class="btn btn-sm btn-primary">Xem chi tiết</a>
                             <a href="${pageContext.request.contextPath}/secured/user/edit-product?id=<%= p.getProductId() %>" class="btn btn-sm btn-warning">Chỉnh sửa</a>

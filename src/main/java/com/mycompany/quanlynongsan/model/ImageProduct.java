@@ -45,6 +45,5 @@ public class ImageProduct {
     public void setUrlImage(String urlImage) {
         this.urlImage = urlImage;
     }
-    
-    
+
 }

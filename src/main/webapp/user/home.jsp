@@ -258,51 +258,51 @@
         <a href="${pageContext.request.contextPath}/user/search">Xem thêm</a>
     </div>
     <div class="container mt-4">
-        <div class="row row-cols-1 row-cols-md-5 g-4" id="product-list">
-            <c:forEach var="product" items="${requestScope.products}">
-                 <c:set var="productId" value="${product.productId}" />
-                <div class="col">
-                    <div class="card h-100 product-card shadow-sm" data-id="${product.productId}" style="cursor: pointer;">
-                        <img src="${product.imageUrls[0]}" class="card-img-top product-image" alt="${product.name}" />
-                        <div class="card-body text-center">
-                            <h6 class="card-title mb-2">${product.name}</h6>
-                            <p class="price mb-1 text-dark fw-bold">${product.price}đ</p>
-                            <div class="rating text-warning mb-2">
-                                <%
-                                    OrderProductRepository orderProductRepository = new OrderProductRepository();
-                                    int productId = (Integer) pageContext.getAttribute("productId");
-                                    Double rating = orderProductRepository.getAverageRateByProductId(productId);
-                                    Integer quantityReviews = orderProductRepository.getNumberOfReviewsByProductId(productId);
-                                %>
-                                <c:set var="fullStars" value="${rating - (rating mod 1)}" />
-                                <c:set var="halfStar" value="${(rating % 1) >= 0.25 && (rating % 1) <= 0.75}" />
-                                <c:set var="hasHalfStar" value="${halfStar ? 1 : 0}" />
-                                <c:set var="emptyStars" value="${5 - fullStars - hasHalfStar}" />
+            <div class="row row-cols-1 row-cols-md-5 g-4" id="product-list">
+                <c:forEach var="product" items="${requestScope.products}">
+                     <c:set var="productId" value="${product.productId}" />
+                    <div class="col">
+                        <div class="card h-100 product-card shadow-sm" data-id="${product.productId}" style="cursor: pointer;">
+                            <img src="${product.imageUrls[0]}" class="card-img-top product-image" alt="${product.name}" />
+                            <div class="card-body text-center">
+                                <h6 class="card-title mb-2">${product.name}</h6>
+                                <p class="price mb-1 text-dark fw-bold">${product.price}đ</p>
+                                <div class="rating text-warning mb-2">
+                                    <%
+                                        OrderProductRepository orderProductRepository = new OrderProductRepository();
+                                        int productId = (Integer) pageContext.getAttribute("productId");
+                                        Double rating = orderProductRepository.getAverageRateByProductId(productId);
+                                        Integer quantityReviews = orderProductRepository.getNumberOfReviewsByProductId(productId);
+                                    %>
+                                    <c:set var="fullStars" value="${rating - (rating mod 1)}" />
+                                    <c:set var="halfStar" value="${(rating % 1) >= 0.25 && (rating % 1) <= 0.75}" />
+                                    <c:set var="hasHalfStar" value="${halfStar ? 1 : 0}" />
+                                    <c:set var="emptyStars" value="${5 - fullStars - hasHalfStar}" />
 
-                                <%-- In full stars --%>
-                                <c:forEach var="i" begin="1" end="${fullStars}">
-                                    &#9733;
-                                </c:forEach>
+                                    <%-- In full stars --%>
+                                    <c:forEach var="i" begin="1" end="${fullStars}">
+                                        &#9733;
+                                    </c:forEach>
 
-                                <%-- In half star --%>
-                                <c:if test="${hasHalfStar ne 0}">
+                                    <%-- In half star --%>
+                                    <c:if test="${hasHalfStar ne 0}">
 
-                                    &#189;
-                                </c:if>
+                                        &#189;
+                                    </c:if>
 
-                                <%-- In empty stars --%>
-                                <c:forEach var="i" begin="1" end="${emptyStars}">
-                                    &#9734;
-                                </c:forEach>
+                                    <%-- In empty stars --%>
+                                    <c:forEach var="i" begin="1" end="${emptyStars}">
+                                        &#9734;
+                                    </c:forEach>
 
-                                <span style="font-size: 0.9em; color: #666;">(${rating})</span>
+                                    <span style="font-size: 0.9em; color: #666;">(${rating})</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            </c:forEach>
-        </div>
+                </c:forEach>
+            </div>
 
         <!-- Modal hiển thị chi tiết sản phẩm -->
         <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
@@ -344,6 +344,9 @@
                                 
                                 <!-- ✅ Nút Xem chi tiết -->
                             <a id="productDetailPageLink" class="btn btn-primary" href="${pageContext.request.contextPath}/product-detail">Xem chi tiết</a>
+                            
+                            <!-- ✅ Nút Báo cáo sản phẩm -->
+                            <a id="reportProductLink" class="btn btn-warning" href="${pageContext.request.contextPath}/user/report-product-page.jsp?productId=${productId}">Báo cáo</a>
                             </div>
                         </div>
                     </div>
@@ -360,6 +363,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        const breadcrumb = document.querySelector(".breadcrumb").innerHTML = `<div><span class="material-symbols-outlined">home</span> &bull; Trang chủ</div>`;
         const buttons = document.querySelectorAll("#tabList .nav-link");
 
         // Gửi mặc định khi mới load (ví dụ gửi categoryId = 0)
@@ -448,8 +452,7 @@
 
             // ✅ Xử lý nếu chưa đăng nhập
             if (response.status === 401) {
-                window.location.href = contextPath + "/login.jsp"; // 👉 Chuyển hướng về trang login
-                return; // Dừng luôn
+                return false; // Dừng luôn
             }
 
             if (!response.ok) {
@@ -549,10 +552,36 @@
             const contextPath = "/" + window.location.pathname.split('/')[1];
             if (isFavorited) {
             // Gọi API bỏ yêu thích
-                await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId, { method: 'DELETE' });
+                const response = await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId + `&action=delete`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                // ✅ Xử lý nếu chưa đăng nhập
+                if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
             } else {
                 // Gọi API thêm vào yêu thích
-                await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId, { method: 'POST' });
+                const response = await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId + `&action=add`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                // ✅ Xử lý nếu chưa đăng nhập
+                if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
             }
 
             // Toggle giao diện sau khi API xong
@@ -569,7 +598,8 @@
                 const response = await fetch(contextPath + `/secured/user/has-cart`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: new URLSearchParams({
                         productId: productId,
@@ -578,6 +608,13 @@
                     credentials: 'include' // <-- Quan trọng khi dùng session
                 });
 
+                if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
+                
                 const result = await response.json();
 
                 if (result === true) {

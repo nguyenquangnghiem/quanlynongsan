@@ -4,7 +4,6 @@
  */
 package com.mycompany.quanlynongsan.dto;
 
-import com.mycompany.quanlynongsan.model.Category;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -30,11 +29,14 @@ public class ProductDTO {
     Double rates;
     Integer reviewerQuantity;
     List<String> categories;
-    
+
     public ProductDTO() {
     }
 
-    public ProductDTO(Integer productId, String name, String description, BigDecimal price, Integer quantity, String status, Boolean isSell, Boolean isBrowse, String placeOfManufacture, Boolean isActive, Integer holderId, Date createdDate, List<String> imageUrls, Double rates, Integer reviewerQuantity, List<String> categories) {
+    public ProductDTO(Integer productId, String name, String description, BigDecimal price, Integer quantity,
+            String status, Boolean isSell, Boolean isBrowse, String placeOfManufacture, Boolean isActive,
+            Integer holderId, Date createdDate, List<String> imageUrls, Double rates, Integer reviewerQuantity,
+            List<String> categories) {
         this.productId = productId;
         this.name = name;
         this.description = description;
@@ -181,5 +183,4 @@ public class ProductDTO {
         this.categories = categories;
     }
 
-    
 }

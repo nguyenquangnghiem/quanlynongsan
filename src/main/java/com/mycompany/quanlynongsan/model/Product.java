@@ -28,7 +28,9 @@ public class Product {
     public Product() {
     }
 
-    public Product(Integer productId, String name, String description, BigDecimal price, Integer quantity, String status, Boolean isSell, Boolean isBrowse, String placeOfManufacture, Boolean isActive, Integer holderId, Date createdDate) {
+    public Product(Integer productId, String name, String description, BigDecimal price, Integer quantity,
+            String status, Boolean isSell, Boolean isBrowse, String placeOfManufacture, Boolean isActive,
+            Integer holderId, Date createdDate) {
         this.productId = productId;
         this.name = name;
         this.description = description;
@@ -139,6 +141,4 @@ public class Product {
         this.createdDate = createdDate;
     }
 
-    
-    
 }

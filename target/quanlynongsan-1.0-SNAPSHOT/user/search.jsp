@@ -3,23 +3,66 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <jsp:include page="/header.jsp" />
 
+<style>
+    .card-header {
+        background-color: #28a745 !important; /* Màu xanh lục */
+        color: #fff;
+    }
+
+    .btn-primary {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+
+    .btn-primary:hover {
+        background-color: #218838 !important;
+        border-color: #1e7e34 !important;
+    }
+
+    .btn-outline-primary {
+        color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .rating {
+        color: #f5b301;
+    }
+
+    .product-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+</style>
+
 <div class="container mt-4">
     <div class="row">
-        <!-- Left Sidebar - Categories/Filters -->
         <div class="col-md-3">
-            <form id="searchForm" action="${pageContext.request.contextPath}/user/search" method="POST">
-                
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5>Tên sản phẩm</h5>
-        </div>
-        <div class="card-body">
-            <input type="text" class="form-control" name="name" placeholder="Nhập tên sản phẩm...">
-        </div>
-    </div>
-                <!-- Category Filter -->
+            <form id="searchForm" action="<%=request.getContextPath()%>/user/search" method="POST">
                 <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header">
+                        <h5>Tên sản phẩm</h5>
+                    </div>
+                    <div class="card-body">
+                        <input type="text" class="form-control" name="name" placeholder="Nhập tên sản phẩm...">
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>Danh mục</h5>
                     </div>
                     <div class="card-body">
@@ -27,78 +70,53 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="category" value="${tab.categoryId}" id="cat${tab.categoryId}" ${tab.categoryId == 0 ? 'checked' : ''}>
                                 <label class="form-check-label" for="cat${tab.categoryId}">
-                                    ${tab.name} 
+                                    ${tab.name}
                                 </label>
                             </div>
                         </c:forEach>
                     </div>
                 </div>
-                                
-           <!-- Price Filter -->
-<div class="card mb-4">
-  <div class="card-header bg-primary text-white">
-    <h5>Mức giá</h5>
-  </div>
-  <div class="card-body">
-    <p>Giá: <span id="minPriceDisplay">5000</span> – <span id="maxPriceDisplay">1500000</span></p>
-
-    <!-- Hidden input để submit form -->
-    <input type="hidden" name="minPrice" id="minPriceInput">
-    <input type="hidden" name="maxPrice" id="maxPriceInput">
-
-    <!-- Slider 2 đầu -->
-    <div class="d-flex flex-column align-items-center">
-      <input type="range" id="minPriceRange" min="5000" max="1500000" step="50" value="5000" class="form-range mb-2">
-      <input type="range" id="maxPriceRange" min="5000" max="1500000" step="50" value="1500000" class="form-range">
-    </div>
-  </div>
-</div>
 
                 <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header">
+                        <h5>Mức giá</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Giá: <span id="minPriceDisplay">5000</span> – <span id="maxPriceDisplay">1500000</span></p>
+
+                        <input type="hidden" name="minPrice" id="minPriceInput">
+                        <input type="hidden" name="maxPrice" id="maxPriceInput">
+
+                        <div class="d-flex flex-column align-items-center">
+                            <input type="range" id="minPriceRange" min="5000" max="1500000" step="50" value="5000" class="form-range mb-2">
+                            <input type="range" id="maxPriceRange" min="5000" max="1500000" step="50" value="1500000" class="form-range">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
                         <h5>Nơi sản xuất</h5>
                     </div>
                     <div class="card-body">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="origin" value="Việt Nam" id="originVN">
-                            <label class="form-check-label" for="originVN">
-                                Việt Nam
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="origin" value="Thái Lan" id="originTH">
-                            <label class="form-check-label" for="originTH">
-                                Thái Lan
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="origin" value="Trung Quốc" id="originCN">
-                            <label class="form-check-label" for="originCN">
-                                Trung Quốc
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="origin" value="Mỹ" id="originUS">
-                            <label class="form-check-label" for="originUS">
-                                Mỹ
-                            </label>
-                        </div>
-                        <!-- Thêm các nơi sản xuất khác nếu cần -->
-
-
+                        <div class="form-check"><input class="form-check-input" type="checkbox" name="origin" value="Việt Nam" id="originVN"><label class="form-check-label" for="originVN">Việt Nam</label></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" name="origin" value="Thái Lan" id="originTH"><label class="form-check-label" for="originTH">Thái Lan</label></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" name="origin" value="Trung Quốc" id="originCN"><label class="form-check-label" for="originCN">Trung Quốc</label></div>
+                        <div class="form-check"><input class="form-check-input" type="checkbox" name="origin" value="Mỹ" id="originUS"><label class="form-check-label" for="originUS">Mỹ</label></div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Lọc</button>
+
+                <button type="submit" class="btn btn-primary w-100">Lọc</button>
             </form>
         </div>
 
-        <!-- Main Content - Products -->
         <div class="col-md-9">
             <div class="row" id="product-list">
                 <c:set var="products" value="${requestScope.products}" />
             </div>
         </div>
     </div>
+</div>
 
     <!-- Modal hiển thị chi tiết sản phẩm -->
     <div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
@@ -140,6 +158,9 @@
 
                             <!-- ✅ Nút Xem chi tiết -->
                             <a id="productDetailPageLink" class="btn btn-primary" href="${pageContext.request.contextPath}/product-detail">Xem chi tiết</a>
+                            
+                            <!-- ✅ Nút Báo cáo sản phẩm -->
+                            <a id="reportProductLink" class="btn btn-warning" href="${pageContext.request.contextPath}/user/report-product-page.jsp?productId=${productId}">Báo cáo</a>
                         </div>
                     </div>
                 </div>
@@ -177,6 +198,12 @@
 
   // Gọi ban đầu để hiển thị đúng giá trị
   updatePriceDisplay();
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const breadcrumb = document.querySelector(".breadcrumb").innerHTML = `<div><span class="material-symbols-outlined">home</span> &bull; Trang chủ &bull; Tìm kiếm</div>`;
+    });
 </script>
    <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -261,8 +288,7 @@
 
             // ✅ Xử lý nếu chưa đăng nhập
             if (response.status === 401) {
-                window.location.href = contextPath + "/login.jsp"; // 👉 Chuyển hướng về trang login
-                return; // Dừng luôn
+                return false; // Dừng luôn
             }
 
             if (!response.ok) {
@@ -362,10 +388,36 @@
             const contextPath = "/" + window.location.pathname.split('/')[1];
             if (isFavorited) {
             // Gọi API bỏ yêu thích
-                await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId, { method: 'DELETE' });
+                const response = await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId + `&action=delete`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                // ✅ Xử lý nếu chưa đăng nhập
+                if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
             } else {
                 // Gọi API thêm vào yêu thích
-                await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId, { method: 'POST' });
+                const response = await fetch(contextPath + `/secured/user/has-like-product?productId=` + productId + `&action=add`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                // ✅ Xử lý nếu chưa đăng nhập
+                if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
             }
 
             // Toggle giao diện sau khi API xong
@@ -382,7 +434,8 @@
                 const response = await fetch(contextPath + `/secured/user/has-cart`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: new URLSearchParams({
                         productId: productId,
@@ -390,6 +443,13 @@
                     }),
                     credentials: 'include' // <-- Quan trọng khi dùng session
                 });
+                
+                if (response.status === 401) {
+                    if(window.confirm("Vui lòng đăng nhập trước!")){
+                        window.location.href = contextPath + '/login';
+                    }
+                    return;
+                }
 
                 const result = await response.json();
 

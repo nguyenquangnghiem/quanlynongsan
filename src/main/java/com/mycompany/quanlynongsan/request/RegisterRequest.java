@@ -46,6 +46,4 @@ public class RegisterRequest {
         this.roleId = roleId;
     }
 
-    
-    
 }

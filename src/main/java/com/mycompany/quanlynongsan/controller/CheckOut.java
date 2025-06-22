@@ -4,11 +4,6 @@
  */
 package com.mycompany.quanlynongsan.controller;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -21,9 +16,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.commons.codec.binary.Hex;
+
+import com.mycompany.quanlynongsan.model.User;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -31,8 +37,15 @@ import org.apache.commons.codec.binary.Hex;
  */
 
 @WebServlet(urlPatterns = "/secured/checkout")
-public class CheckOut extends HttpServlet{
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+public class CheckOut extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        if (user.getPhoneNumber() == null || user.getAddress() == null || user.getFullName() == null) {
+            response.sendRedirect(request.getContextPath() + "/secured/user/shopping-cart?incompleteProfile=true");
+            return;
+        }
         String orderType = "other";
         String vnp_TxnRef = getRandomNumber(8);
         String vnp_IpAddr = "127.0.0.1";
@@ -44,7 +57,7 @@ public class CheckOut extends HttpServlet{
         String vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
         String vnp_Returnurl = "http://localhost:8082/quanlynongsan/vnpay_return";
 
-        long amount = (long)Math.round(price)* 100; // Số tiền * 100 (VND)
+        long amount = (long) Math.round(price) * 100; // Số tiền * 100 (VND)
         String bankCode = "NCB";
 
         String vnp_OrderInfo = "Thanh toan don hang " + vnp_TxnRef;
@@ -79,8 +92,10 @@ public class CheckOut extends HttpServlet{
             String fieldName = itr.next();
             String fieldValue = vnp_Params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                hashData.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                query.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                hashData.append(fieldName).append('=')
+                        .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                query.append(fieldName).append('=')
+                        .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
                 if (itr.hasNext()) {
                     hashData.append('&');
                     query.append('&');
@@ -88,14 +103,13 @@ public class CheckOut extends HttpServlet{
             }
         }
 
-
         String secureHash = hmacSHA512(vnp_HashSecret, hashData.toString());
         query.append("&vnp_SecureHash=").append(secureHash);
         String paymentUrl = vnp_Url + "?" + query.toString();
 
         response.sendRedirect(paymentUrl);
     }
-    
+
     public static String hmacSHA512(final String key, final String data) {
         try {
             if (key == null || data == null) {
@@ -110,7 +124,7 @@ public class CheckOut extends HttpServlet{
             return "";
         }
     }
-    
+
     public static String getRandomNumber(int len) {
         Random rnd = new Random();
         String chars = "0123456789";
@@ -120,6 +134,5 @@ public class CheckOut extends HttpServlet{
         }
         return sb.toString();
     }
-
 
 }

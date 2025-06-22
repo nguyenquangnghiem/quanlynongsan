@@ -21,7 +21,7 @@
 
                 <div class="mb-3">
                     <label for="place" class="form-label">Nơi sản xuất</label>
-                    <input type="text" class="form-control" id="place" name="placeOfManufacture" required placeholder="Ví dụ: Long An, Việt Nam">
+                    <input type="text" class="form-control" id="place" name="place_of_manufacture" required placeholder="Ví dụ: Long An, Việt Nam">
                 </div>
                 <div class="mb-3">
                     <label for="categories" class="form-label">Danh mục sản phẩm</label>
@@ -33,6 +33,15 @@
                     </select>
                     <div class="form-text">Giữ Ctrl (hoặc Cmd trên Mac) để chọn nhiều danh mục</div>
                 </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Đăng bán</label>
+                    <select class="form-select" name="is_sell" required>
+                        <option value="true" >Có</option>
+                        <option value="false" >Không</option>
+                    </select>
+                </div>
+                    
                 <div class="mb-3">
                     <label for="price" class="form-label">Giá tiền (VNĐ)</label>
                     <input type="number" class="form-control" id="price" name="price" required min="0" placeholder="Ví dụ: 25000">
@@ -42,9 +51,9 @@
                     <label for="status" class="form-label">Trạng thái</label>
                     <select class="form-select" id="status" name="status" required>
                         <option value="">-- Chọn trạng thái --</option>
-                        <option value="Bình thường">Bình thường</option>
-                        <option value="Sắp hết hạn">Sắp hết hạn</option>
-                        <option value="Hết hạn">Hết hạn</option>
+                        <option value="BINH_THUONG">Bình thường</option>
+                        <option value="SAP_HET_HAN">Sắp hết hạn</option>
+                        <option value="HET_HAN">Hết hạn</option>
                     </select>
                 </div>
 
@@ -62,7 +71,6 @@
                 <!-- Hidden fields mặc định -->
                 <input type="hidden" name="is_active" value="true">
                 <input type="hidden" name="is_browse" value="false">
-                <input type="hidden" name="is_sell" value="true">
 
                 <div class="d-grid mt-4">
                     <button type="submit" class="btn btn-success">Gửi duyệt đăng bán</button>

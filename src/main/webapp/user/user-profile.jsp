@@ -1,20 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <jsp:include page="/header.jsp" />
-
-
-
-<c:if test="${not empty message}">
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-</c:if>
-<c:if test="${not empty error}">
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        ${error}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-</c:if>
         
 <div class="container py-4" style="max-width: 900px;">
     <!-- Cập nhật thông tin -->
@@ -146,3 +131,9 @@
 
 
 <jsp:include page="/footer.jsp" />
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const breadcrumb = document.querySelector(".breadcrumb").innerHTML = `<div><span class="material-symbols-outlined">home</span> &bull; Thông tin cá nhân</div>`;
+    });
+</script>

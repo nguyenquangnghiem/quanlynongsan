@@ -11,6 +11,7 @@ package com.mycompany.quanlynongsan.model;
 public class HasLikeProduct {
     Integer userId;
     Integer productId;
+
     public HasLikeProduct() {
     }
 

@@ -11,13 +11,15 @@ package com.mycompany.quanlynongsan.model;
 public class Behavior {
     Integer behaviorId;
     String code;
+    String description;
 
     public Behavior() {
     }
 
-    public Behavior(Integer behaviorId, String code) {
+    public Behavior(Integer behaviorId, String code, String description) {
         this.behaviorId = behaviorId;
         this.code = code;
+        this.description = description;
     }
 
     public Integer getBehaviorId() {
@@ -35,6 +37,13 @@ public class Behavior {
     public void setCode(String code) {
         this.code = code;
     }
-    
-    
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 }

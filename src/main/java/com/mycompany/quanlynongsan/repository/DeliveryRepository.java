@@ -4,8 +4,6 @@
  */
 package com.mycompany.quanlynongsan.repository;
 
-import com.mycompany.quanlynongsan.config.DatabaseConnection;
-import com.mycompany.quanlynongsan.model.Delivery;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -13,11 +11,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.mycompany.quanlynongsan.config.DatabaseConnection;
+import com.mycompany.quanlynongsan.model.Delivery;
+
 /**
  *
  * @author nghiem
  */
 public class DeliveryRepository {
+
     public DeliveryRepository() {
     }
 
@@ -42,4 +44,44 @@ public class DeliveryRepository {
 
         return deliveries;
     }
+
+    public void insert(int orderId, String address) {
+        String INSERT_DELIVERY_SQL = "INSERT INTO DELIVERY (address, created_date) VALUES (?, GETDATE())";
+        String INSERT_ORDER_DELIVERY_SQL = "INSERT INTO ORDER_DELIVERY (order_id, delivery_id) VALUES (?, ?)";
+
+        try (var conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement insertDeliveryStmt = conn.prepareStatement(INSERT_DELIVERY_SQL,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+                    PreparedStatement insertOrderDeliveryStmt = conn.prepareStatement(INSERT_ORDER_DELIVERY_SQL)) {
+
+                // Thêm vào bảng DELIVERY
+                insertDeliveryStmt.setString(1, address);
+                insertDeliveryStmt.executeUpdate();
+
+                // Lấy delivery_id vừa tạo
+                ResultSet generatedKeys = insertDeliveryStmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    int deliveryId = generatedKeys.getInt(1);
+
+                    // Gắn vào ORDER_DELIVERY
+                    insertOrderDeliveryStmt.setInt(1, orderId);
+                    insertOrderDeliveryStmt.setInt(2, deliveryId);
+                    insertOrderDeliveryStmt.executeUpdate();
+                } else {
+                    throw new RuntimeException("Không lấy được delivery_id sau khi insert");
+                }
+
+                conn.commit();
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new RuntimeException("Thêm lịch sử vận chuyển thất bại: " + ex.getMessage());
+        }
+    }
+
 }

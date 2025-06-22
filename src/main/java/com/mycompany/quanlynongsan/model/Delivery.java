@@ -47,6 +47,5 @@ public class Delivery {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
-    
-    
+
 }
